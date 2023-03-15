@@ -2,39 +2,24 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Models\Item;
-use Illuminate\Http\Request;
-use App\Http\Resources\ItemResource;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\SaleDetail;
 use App\Models\Sales;
-use App\Models\SalesDetail;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class ItemController extends BaseController
+class SalesController extends BaseController
 {
-
-    public function index(Request $request)
-    {
-        $limit = $request->input('limit', 5);
-        $name = $request->input('name');
-        $item = Item::with(['brand', 'unit',  'maker']);
-
-        if ($name) {
-            $item->where('name', 'like', '%' . $name . '%');
-        }
-
-        $result = $item->latest()->paginate($limit);
-
-        return $this->sendResponse($result, 'Data fetched');
-    }
-
-    public function store(Request $request)
+    function store(Request $request)
     {
         try {
-            DB::beginTransaction(); // memulai transaksi
+            DB::beginTransaction();
 
+
+            if (($request->customer->id)) {
+            
+                CustomerController::Store()
+            }
             $sales = Sales::create([
                 'customer_id' => 1,
                 'tanggal_transaksi' => '2023-03-13',

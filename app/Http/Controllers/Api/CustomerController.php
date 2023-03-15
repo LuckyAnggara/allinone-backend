@@ -2,63 +2,44 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\BaseController;
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\Api\BaseController;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class CustomerController extends BaseController
 {
-    public function index(Request $request)
+    function store(Request $request)
     {
-        $limit = $request->input('limit', 5);
-        $name = $request->input('name');
-        $branch = '1';
-        $query = Customer::with(['branch', 'maker']);
-
-        if ($name) {
-            $query->where('name', 'like', '%' . $name . '%');
+        try {
+            DB::beginTransaction();
+            $customer = Customer::create([
+                'customer_id' => 1,
+                'tanggal_transaksi' => '2023-03-13',
+                'total_transaksi' => 100000,
+                'status_pembayaran' => 'BELUM LUNAS',
+            ]);
+            DB::commit();
+            return $this->sendResponse($customer, 'Data Created', 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return  $this->sendResponse($e->getMessage(), 'Error', 404);
         }
-
-        if ($branch) {
-            $query->where('branch_id', $branch);
-        }
-
-        $result = $query->latest()->paginate($limit);
-
-        return $this->sendResponse($result, 'Data fetched');
     }
-    public function show($id)
+
+    static function create($data)
     {
-        $customer = Customer::findOrFail($id);
-
-        return response()->json(
-            [
-                'customer' => $customer,
-            ],
-            200,
-        );
-    }
-    public function update(Request $request, $id)
-    {
-        $customer = Customer::findOrFail($id);
-
-        $customer->name = $request->input('name');
-        $customer->address = $request->input('address');
-        $customer->phone_number = $request->input('phone_number');
-        $customer->member = $request->input('member');
-        $customer->company = $request->input('company');
-
+        $customer = new Customer;
+        $customer->name = $data->name;
+        $customer->address = $data->address;
+        $customer->phone_number = $data->phone_number;
+        $customer->member = $data->member;
+        $customer->company = $data->company;
+        $customer->pic = $data->pic;
+        $customer->created_by = $data->created_by;
+        $customer->branch_id = $data->branch_id;
         $customer->save();
 
-        return response()->json(
-            [
-                'message' => 'Customer updated successfully',
-                'customer' => $customer,
-            ],
-            200,
-        );
+        return $customer;
     }
 }

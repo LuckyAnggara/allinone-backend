@@ -20,11 +20,9 @@ class UserFactory extends Factory
         return [
             'employee_id' => $this->faker->numberBetween(1, 5),
             'username' => $this->faker->userName(),
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => '$2a$04$NZ83cMmcpFJVmCM66MzlieZ.Jk3D31DHMzkhsMsivXdlCjtZpdmBG', // password
             'remember_token' => Str::random(10),
         ];
-
-          
     }
 
     /**
