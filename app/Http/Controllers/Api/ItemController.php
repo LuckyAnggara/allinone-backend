@@ -4,12 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Item;
 use Illuminate\Http\Request;
-use App\Http\Resources\ItemResource;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Api\BaseController;
-use App\Models\SaleDetail;
-use App\Models\Sales;
-use App\Models\SalesDetail;
 use Illuminate\Support\Facades\DB;
 
 class ItemController extends BaseController
@@ -17,47 +12,39 @@ class ItemController extends BaseController
 
     public function index(Request $request)
     {
-        $limit = $request->input('limit', 5);
+        $perPage = $request->input('limit', 5);
         $name = $request->input('name');
-        $item = Item::with(['brand', 'unit',  'maker']);
 
-        if ($name) {
-            $item->where('name', 'like', '%' . $name . '%');
-        }
+        $items = Item::with(['brand', 'unit',  'maker'])
+            ->when($name, function ($query, $name) {
+                return $query->where('name', 'like', '%' . $name . '%');
+            })
+            ->latest()
+            ->paginate($perPage);
 
-        $result = $item->latest()->paginate($limit);
-
-        return $this->sendResponse($result, 'Data fetched');
+        return $this->sendResponse($items, 'Data fetched');
     }
 
     public function store(Request $request)
     {
         try {
-            DB::beginTransaction(); // memulai transaksi
-
-            $sales = Sales::create([
-                'customer_id' => 1,
-                'tanggal_transaksi' => '2023-03-13',
-                'total_transaksi' => 100000,
-                'status_pembayaran' => 'BELUM LUNAS',
+            DB::beginTransaction();
+            // validate request data
+            $validatedData = $request->validate([
+                'name' => 'required',
+                'unit_id' => 'required',
+                'brand_id' => 'required',
+                'warehouse_id' => 'required',
+                'rack' => 'required',
+                'created_by' => 'required',
             ]);
-
-            $salesDetail = SaleDetail::create([
-                'sales_id' => $sales->id,
-                'item_id' => 1,
-                'qty' => 2,
-                'price' => 50000,
-            ]);
-
-            $sales->salesDetails()->save($salesDetail);
-
-            DB::commit(); // menyimpan perubahan ke database
+            // create a new instance of YourModel using the validated data
+            $item = Item::create($validatedData);
+            DB::commit();
+            return $this->sendResponse($item, 'Data saved successfully');
         } catch (\Exception $e) {
-            DB::rollBack(); // membatalkan perubahan
-
-            // handle kesalahan
-            // contoh:
-            return redirect()->back()->withErrors(['message' => $e->getMessage()]);
+            DB::rollBack();
+            return $this->sendError($e, 'Failed to saved data');
         }
     }
 }

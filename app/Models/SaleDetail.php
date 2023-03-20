@@ -21,4 +21,9 @@ class SaleDetail extends Model
     {
         return $this->hasOne(Employee::class, 'id', 'item_id');
     }
+
+    // public function salesDetails()
+    // {
+    //     return $this->hasMany(SaleDetail::class);
+    // }
 }

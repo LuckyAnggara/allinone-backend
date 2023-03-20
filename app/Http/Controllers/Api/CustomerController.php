@@ -12,50 +12,43 @@ class CustomerController extends BaseController
 
     public function index(Request $request)
     {
-        $limit = $request->input('limit', 5);
+        $perPage = $request->input('limit', 5);
         $name = $request->input('name');
-        $item = Customer::with(['branch', 'maker']);
 
-        if ($name) {
-            $item->where('name', 'like', '%' . $name . '%');
-        }
+        $query = Customer::with(['branch', 'maker'])
+            ->when($name, function ($query) use ($name) {
+                return $query->where('name', 'like', '%' . $name . '%');
+            })
+            ->latest()
+            ->paginate($perPage);
 
-        $result = $item->latest()->paginate($limit);
-
-        return $this->sendResponse($result, 'Data fetched');
+        return $this->sendResponse($query, 'Data fetched');
     }
 
-    function store(Request $request)
+    public function store(Request $request)
     {
         try {
             DB::beginTransaction();
-            $customer = Customer::create([
-                'customer_id' => 1,
-                'tanggal_transaksi' => '2023-03-13',
-                'total_transaksi' => 100000,
-                'status_pembayaran' => 'BELUM LUNAS',
-            ]);
+            $customer = Customer::create($request->all());
             DB::commit();
             return $this->sendResponse($customer, 'Data Created', 201);
         } catch (\Exception $e) {
             DB::rollBack();
-            return  $this->sendResponse($e->getMessage(), 'Error', 404);
+            return $this->sendResponse($e->getMessage(), 'Error', 404);
         }
     }
 
     static function create($data)
     {
-        $customer = new Customer;
-        $customer->name = $data->name;
-        $customer->address = $data->address;
-        $customer->phone_number = $data->phone_number;
-        $customer->member = $data->member;
-        $customer->company = $data->company;
-        $customer->pic = $data->pic;
-        $customer->created_by = $data->created_by;
-        $customer->branch_id = $data->branch_id;
-        $customer->save();
-
-        return $customer;
+        return Customer::create([
+            'name' => $data->name,
+            'address' => $data->address,
+            'phone_number' => $data->phone_number,
+            'member' => $data->member ?? 0,
+            'company' => $data->company ?? 0,
+            'pic' => $data->pic ?? '',
+            'created_by' => $data->userId,
+            'branch_id' => 1,
+        ]);
     }
 }
