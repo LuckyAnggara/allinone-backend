@@ -9,6 +9,22 @@ use Illuminate\Support\Facades\DB;
 
 class CustomerController extends BaseController
 {
+
+    public function index(Request $request)
+    {
+        $limit = $request->input('limit', 5);
+        $name = $request->input('name');
+        $item = Customer::with(['branch', 'maker']);
+
+        if ($name) {
+            $item->where('name', 'like', '%' . $name . '%');
+        }
+
+        $result = $item->latest()->paginate($limit);
+
+        return $this->sendResponse($result, 'Data fetched');
+    }
+
     function store(Request $request)
     {
         try {
