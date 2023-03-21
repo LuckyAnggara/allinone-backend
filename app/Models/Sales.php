@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Sales extends Model
 {
-        use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'invoice',
@@ -26,7 +26,7 @@ class Sales extends Model
         'created_by',
         'branch_id',
     ];
-    
+
     public function maker()
     {
         return $this->hasOne(Employee::class, 'id', 'created_by');
@@ -34,7 +34,7 @@ class Sales extends Model
 
     public function customer()
     {
-        return $this->hasOne(Employee::class, 'id', 'customer_id');
+        return $this->hasOne(Customer::class, 'id', 'customer_id');
     }
 
     public function detail()

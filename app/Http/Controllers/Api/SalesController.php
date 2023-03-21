@@ -13,6 +13,38 @@ use Carbon\Carbon;
 
 class SalesController extends BaseController
 {
+    public function index(Request $request)
+    {
+        $perPage = $request->input('limit', 5);
+        $name = $request->input('name');
+        $branch = $request->input('branch');
+        $startDate = $request->input('branch');
+        $endDate = $request->input('endDate');
+        $invoice = $request->input('invoice');
+        $minTotal = $request->input('mintotal');
+
+        $result = Sales::with(['customer', 'detail', 'maker', 'branch'])
+            ->when($name, function ($query, $name) {
+                return $query->where('name', 'like', '%' . $name . '%');
+            })
+            ->when($branch, function ($query, $branch) {
+                return $query->where('branch_id', $branch);
+            })
+            ->when($invoice, function ($query, $invoice) {
+                return $query->where('invoice', 'like', '%' . $invoice . '%');
+            })
+            ->when($minTotal, function ($query, $minTotal) {
+                return $query->where('grand_total', '>=', $minTotal);
+            })
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                return $query->whereBetween('created_at', [$startDate, $endDate]);
+            })
+            ->orderBy('created_at', 'desc')
+            ->paginate($perPage);
+
+        return $this->sendResponse($result, 'Data fetched');
+    }
+
     function store(Request $request)
     {
         $data = json_decode($request->getContent());
