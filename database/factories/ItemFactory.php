@@ -18,8 +18,8 @@ class ItemFactory extends Factory
     {
          return [
             'name' => $this->faker->word(),
-            'unit_id' => $this->faker->randomDigit(),
-            'brand_id' => $this->faker->randomDigit(),
+            'unit_id' => $this->faker->numberBetween(1,8),
+            'brand_id' => $this->faker->numberBetween(1,3),
             'warehouse_id' =>1,
             'created_by' => 1,
         ];

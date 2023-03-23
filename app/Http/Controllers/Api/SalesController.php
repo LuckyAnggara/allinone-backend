@@ -6,6 +6,9 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\SaleDetail;
 use App\Models\Sales;
 use App\Helpers\InvoiceHelper;
+use App\Http\Controllers\API\CashTransactionController;
+use App\Http\Controllers\API\MutationController;
+use App\Models\CashTransaction;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,12 +26,13 @@ class SalesController extends BaseController
         $invoice = $request->input('invoice');
         $minTotal = $request->input('mintotal');
 
-        $result = Sales::with(['customer', 'detail', 'maker', 'branch'])
+        $result = Sales::select('sales.*')
+            ->join('customers', 'customers.id', '=', 'sales.customer_id')
             ->when($name, function ($query, $name) {
-                return $query->where('name', 'like', '%' . $name . '%');
+                return $query->where('customers.name', 'like', '%' . $name . '%');
             })
             ->when($branch, function ($query, $branch) {
-                return $query->where('branch_id', $branch);
+                return $query->where('sales.branch_id', $branch);
             })
             ->when($invoice, function ($query, $invoice) {
                 return $query->where('invoice', 'like', '%' . $invoice . '%');
@@ -39,6 +43,7 @@ class SalesController extends BaseController
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 return $query->whereBetween('created_at', [$startDate, $endDate]);
             })
+            ->with(['customer', 'detail', 'maker', 'branch'])
             ->orderBy('created_at', 'desc')
             ->paginate($perPage);
 
@@ -53,11 +58,11 @@ class SalesController extends BaseController
         try {
             $customer = Customer::find($data->customer->id);
             if (!$customer) {
-                $customer = CustomerController::create($data->customer);
+                $customer = CustomerController::create($data->customer, $data->user);
             }
 
             $sales = Sales::create([
-                'invoice' => InvoiceHelper::generateInvoiceNumber(),
+                'invoice' => InvoiceHelper::generateInvoiceNumber($data->user->branchId),
                 'customer_id' => $customer->id,
                 'total' => $data->total->subTotal ?? 0,
                 'discount' => $data->total->discount ?? 0,
@@ -67,10 +72,15 @@ class SalesController extends BaseController
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
                 'grand_total' => $data->total->total ?? 0,
                 'receivable' => 1,
-                'branch_id' => 1,
-                'created_by' => $data->userId,
+                'branch_id' => $data->user->branchId,
+                'created_by' => $data->user->id,
                 'created_at' => Carbon::today(),
             ]);
+
+            if($data->isCash == true){
+                $transactionNotes = 'UANG MASUK DARI TRANSAKSI INVOICE #'.$sales->invoice;
+                CashTransactionController::create($data->transaction, $data->user, $transactionNotes);
+            }
 
             foreach ($data->cart as $value) {
                 $saleDetail[] = SaleDetail::create([
@@ -79,7 +89,11 @@ class SalesController extends BaseController
                     'qty' => $value->qty,
                     'price' => $value->price,
                 ]);
+
+                $notes = 'PENJUALAN TRANSAKSI INVOICE #'.$sales->invoice;
+                $itemMutation[] = MutationController::create($value,$data->user,$notes);
             }
+
             DB::commit();
             return $this->sendResponse($sales, 'Data created', 202);
         } catch (\Exception $e) {

@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         \App\Models\Employee::factory(5)->create();
         \App\Models\User::factory(2)->create();
         \App\Models\Item::factory(15)->create();
+        \App\Models\Branch::factory(5)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
@@ -64,13 +65,11 @@ class DatabaseSeeder extends Seeder
         ItemBrand::create([
             'name' => 'BBM'
         ]);
-
         Warehouse::create([
             'name' => 'Pusat',
             'address' => 'Jl Raya Limbangan 1',
             'pic_id' => 6
         ]);
-
         Warehouse::create([
             'name' => 'Pabrik',
             'address' => 'Jl Raya Limbangan 2',

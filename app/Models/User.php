@@ -21,6 +21,7 @@ class User extends Authenticatable
         'employee_id',
         'username',
         'password',
+        'branch_id',
         'role_id',
         'ability'
     ];
@@ -51,10 +52,13 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class, 'id', 'employee_id');
     }
 
+    public function branch()
+    {
+        return $this->hasOne(Branch::class, 'id', 'branch_id');
+    }
+
     public function role()
     {
         return $this->hasOne(Role::class, 'id', 'role_id');
     }
-
-
 }

@@ -58,7 +58,7 @@ class AuthController extends BaseController
                 $success['token']['access_token'] =  $user->createToken('MyApp')->plainTextToken;
                 $success['token']['token_type'] = 'Bearer';
                 // $success['user'] =  $userId;
-                $success['user'] = User::where('id',$userId)->with(['employee','role'])->first();
+                $success['user'] = User::where('id',$userId)->with(['employee','role','branch'])->first();
                 return $this->sendResponse($success, 'User login successfully.');
             // }
         } else {

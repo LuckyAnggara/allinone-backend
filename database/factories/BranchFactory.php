@@ -23,7 +23,7 @@ class BranchFactory extends Factory
             'phone_number' => $this->faker->phoneNumber(),
             'head_id' => $this->faker->numberBetween(1, 3),
             'email' => $this->faker->safeEmail(),
-            'fax_number' => $this->faker->faxNumber(),
+            'fax_number' => $this->faker->phoneNumber(),
             'created_by' => 1,
         ];
     }

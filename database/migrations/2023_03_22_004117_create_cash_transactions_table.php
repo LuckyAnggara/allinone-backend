@@ -13,14 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('cash_transactions', function (Blueprint $table) {
             $table->id();
-            $table->string('employee_id');
-            $table->string('username')->unique();
-            $table->string('branch_id');
-            $table->string('role_id');
-            $table->string('password');
-            $table->rememberToken();
+            $table->decimal('amount', 12, 2);
+            $table->enum('type', ['IN', 'OUT']);
+            $table->text('description')->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('branch_id')->constrained('branches')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -32,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('cash_transactions');
     }
 };
