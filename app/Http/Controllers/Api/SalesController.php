@@ -6,13 +6,17 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\SaleDetail;
 use App\Models\Sales;
 use App\Helpers\InvoiceHelper;
+use App\Http\Controllers\api\AccountReceivableController;
 use App\Http\Controllers\API\CashTransactionController;
 use App\Http\Controllers\API\MutationController;
 use App\Models\CashTransaction;
 use App\Models\Customer;
+use App\Models\ItemMutation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use PhpParser\Node\Expr\Cast\Object_;
+use stdClass;
 
 class SalesController extends BaseController
 {
@@ -54,13 +58,11 @@ class SalesController extends BaseController
     {
         $data = json_decode($request->getContent());
         DB::beginTransaction();
-
         try {
-            $customer = Customer::find($data->customer->id);
+            $customer = Customer::find($data->customerData->id);
             if (!$customer) {
-                $customer = CustomerController::create($data->customer, $data->user);
+                $customer = CustomerController::create($data->customerData, $data->user);
             }
-
             $sales = Sales::create([
                 'invoice' => InvoiceHelper::generateInvoiceNumber($data->user->branchId),
                 'customer_id' => $customer->id,
@@ -71,27 +73,48 @@ class SalesController extends BaseController
                 'etc_cost' => $data->total->etc ?? 0, //biaya lainnya
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
                 'grand_total' => $data->total->total ?? 0,
-                'receivable' => 1,
+                'receivable' => $data->transaction->isCredit,
                 'branch_id' => $data->user->branchId,
                 'created_by' => $data->user->id,
                 'created_at' => Carbon::today(),
             ]);
-
-            if($data->isCash == true){
-                $transactionNotes = 'UANG MASUK DARI TRANSAKSI INVOICE #'.$sales->invoice;
+            if ($data->transaction->isCash == true) {
+                $transactionNotes = 'UANG MASUK DARI TRANSAKSI INVOICE - #' . $sales->invoice;
                 CashTransactionController::create($data->transaction, $data->user, $transactionNotes);
             }
 
-            foreach ($data->cart as $value) {
-                $saleDetail[] = SaleDetail::create([
+            if ($data->transaction->isCredit == true) {
+                if ($data->credit->amount > 0) {
+                    $transactionNotes = 'DOWN PAYEMENT UNTUK PIUTANG INVOICE - #' . $sales->invoice;
+                    $data->transaction->amount = $data->credit->amount;
+                    CashTransactionController::create($data->transaction, $data->user, $transactionNotes);
+                }
+                AccountReceivableController::create($data->credit, $sales->id);
+
+                $sales->receivable = true;
+
+                $carbon = Carbon::createFromFormat('d M Y', $data->credit->due_date);
+
+                // Mengubah format tanggal menjadi "YYYY-MM-DD"
+                $formattedDate = $carbon->format('Y-m-d');
+
+                $sales->due_date = $formattedDate;
+                $sales->save();
+            }
+
+            $saleDetails = [];
+            $itemMutations = [];
+
+            foreach ($data->currentCart as $value) {
+                $saleDetails[] = SaleDetail::create([
                     'sale_id' => $sales->id,
                     'item_id' => $value->id,
                     'qty' => $value->qty,
                     'price' => $value->price,
                 ]);
 
-                $notes = 'PENJUALAN TRANSAKSI INVOICE #'.$sales->invoice;
-                $itemMutation[] = MutationController::create($value,$data->user,$notes);
+                $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
+                $itemMutations[] = MutationController::create($value, $data->user, $notes);
             }
 
             DB::commit();
@@ -103,50 +126,44 @@ class SalesController extends BaseController
         }
     }
 
-    // function store(Request $request)
-    // {
-    //     $data = $request->validate([
-    //         'customer' => 'required',
-    //         'cart' => 'required|array',
-    //         'total' => 'required',
-    //         'userId' => 'required'
-    //     ]);
+    public function show($id)
+    {
+        $result = Sales::where('id', $id)
+            ->with(['customer', 'detail.item.unit', 'maker', 'branch','payment'])
+            ->first();
+        if ($result) {
+            return $this->sendResponse($result, 'Data fetched');
+        }
+        return $this->sendError('Data not found');
+    }
 
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $customer = Customer::firstOrCreate(['id' => $data['customer']['id']], $data['customer']);
-
-    //         $sales = Sales::create([
-    //             'invoice' => InvoiceHelper::generateInvoiceNumber(),
-    //             'customer_id' => $customer->id,
-    //             'total' => $data['total']['subTotal'] ?? 0,
-    //             'discount' => $data['total']['discount'] ?? 0,
-    //             'tax' => $data['total']['tax'] ?? 0,
-    //             'shipping_cost' => $data['total']['shipping'] ?? 0,
-    //             'etc_cost' => $data['total']['etc'] ?? 0,
-    //             'etc_cost_desc' => $data['total']['etc_desc'] ?? '',
-    //             'grand_total' => $data['total']['total'] ?? 0,
-    //             'receivable' => 1,
-    //             'branch_id' => 1,
-    //             'created_by' => $data['userId'],
-    //             'created_at' => Carbon::today(),
-    //         ]);
-
-    //         $saleDetails = collect($data['cart'])->map(function ($item) use ($sales) {
-    //             return new SaleDetail([
-    //                 'item_id' => $item['id'],
-    //                 'qty' => $item['qty'],
-    //                 'price' => $item['price'],
-    //             ]);
-    //         });
-
-    //         $sales->salesDetails()->saveMany($saleDetails);
-    //         DB::commit();
-    //         return $this->sendResponse($sales, 'Data created', 202);
-    //     } catch (\Exception $e) {
-    //         DB::rollBack();
-    //         return $this->sendResponse($e->getMessage(), 'error', 404);
-    //     }
-    // }
+    public function destroy($id)
+    {
+        
+        DB::beginTransaction();
+        try {
+            $sales = Sales::find($id);
+            if ($sales) {
+                $saleDetails = SaleDetail::where('sale_id', $sales->id)->get();
+                foreach ($saleDetails as $key => $detail) {
+                    $detail->id = $detail->item_id;
+                    $detail->penjualan = false;
+                    $user = new stdClass();
+                    $user->branchId = $sales->branch_id;
+                    $user->id = $sales->created_by;
+                    $notes = 'Hapus Transaksi #'.$sales->invoice;
+                    MutationController::create($detail, $user, $notes);
+                    // $detail->delete();
+                }
+                $sales->delete();
+                DB::commit();
+                return $this->sendResponse($saleDetails, 'Data sales berhasil dihapus', 200);
+            } else {
+                return $this->sendError('','Data sales tidak ditemukan', 404);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Terjadi kesalahan',$e->getMessage(), 500);
+        }
+    }
 }

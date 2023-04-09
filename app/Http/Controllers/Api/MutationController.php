@@ -25,11 +25,11 @@ class MutationController extends BaseController
 
     static function create($data, $user, $notes)
     {
-        $isPenjualan = $data->penjualan ?? false;
+        $isPenjualan = $data->penjualan ?? true;
         $qty = $data->qty ?? 0;
 
-        $debit = $isPenjualan ? $qty : 0;
-        $credit = $isPenjualan ? 0 : $qty;
+        $debit = !$isPenjualan ? $qty : 0;
+        $credit = !$isPenjualan? 0 : $qty;
 
         $notes = $notes ?? 'tidak ada keterangan';
         $branchId = $user->branchId;

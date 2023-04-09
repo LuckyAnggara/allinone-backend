@@ -6,19 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PurchaseDetail extends Model
+class AccountReceivable extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'purchase_id',
-        'item_id',
-        'qty',
-        'price',
+        'sale_id',
+        'payment',
+        'notes',
+        'created_at'
     ];
 
-    public function item()
-    {
-        return $this->hasOne(Item::class, 'id', 'item_id');
-    }
 }

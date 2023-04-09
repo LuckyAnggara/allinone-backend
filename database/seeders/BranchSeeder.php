@@ -23,6 +23,7 @@ class BranchSeeder extends Seeder
             'head_id' => 1,
             'email' => 'companya@example.com',
             'fax_number' => '555-4321',
+            'ability' => '[{"credit" : "true"}]',
         ]);
 
         Branch::created([
@@ -33,6 +34,7 @@ class BranchSeeder extends Seeder
             'head_id' => 1,
             'email' => 'companya@example.com',
             'fax_number' => '555-4321',
+            'ability' => '[{"credit" : "false"}]',
         ]);
     }
 }

@@ -24,7 +24,7 @@ return new class extends Migration
             $table->double('etc_cost')->default(0);
             $table->string('etc_cost_desc')->nullable();
             $table->double('grand_total')->default(0);
-            $table->boolean('receivable')->default(0);
+            $table->boolean('receivable')->default(false);
             $table->double('remaining_receivable')->default(0);
             $table->date('due_date')->nullable();
             $table->integer('branch_id');

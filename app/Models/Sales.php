@@ -21,11 +21,12 @@ class Sales extends Model
         'etc_cost_desc',
         'grand_total',
         'receivable',
-        'remaining_receivable',
         'due_date',
         'created_by',
         'branch_id',
     ];
+
+    protected $appends = ['remaining_receivable','total_payment'];
 
     public function maker()
     {
@@ -40,6 +41,21 @@ class Sales extends Model
     public function detail()
     {
         return $this->hasMany(SaleDetail::class, 'sale_id', 'id')->orderBy('created_at');
+    }
+
+    public function payment()
+    {
+        return $this->hasMany(AccountReceivable::class, 'sale_id', 'id')->orderBy('created_at');
+    }
+
+    public function getRemainingReceivableAttribute()
+    {
+        return $this->grand_total - $this->payment->sum('payment');
+    }
+
+    public function getTotalPaymentAttribute()
+    {
+        return $this->payment->sum('payment');
     }
 
     public function branch()

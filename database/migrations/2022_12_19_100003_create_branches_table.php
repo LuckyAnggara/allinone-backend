@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('head_id'); /// ID Kepala Cabang
             $table->string('email')->nullable();
             $table->string('fax_number')->nullable();
+            $table->string('ability')->nullable();
             $table->integer('created_by');
             $table->timestamps();
             $table->softDeletes();

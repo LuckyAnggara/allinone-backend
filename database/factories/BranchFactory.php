@@ -25,6 +25,7 @@ class BranchFactory extends Factory
             'email' => $this->faker->safeEmail(),
             'fax_number' => $this->faker->phoneNumber(),
             'created_by' => 1,
+            'ability' => '[{"credit" : "false"}]',
         ];
     }
 }

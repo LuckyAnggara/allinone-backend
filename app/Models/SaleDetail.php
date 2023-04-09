@@ -19,7 +19,7 @@ class SaleDetail extends Model
 
     public function item()
     {
-        return $this->hasOne(Employee::class, 'id', 'item_id');
+        return $this->hasOne(Item::class, 'id', 'item_id');
     }
 
     // public function salesDetails()
