@@ -22,12 +22,12 @@ class ItemMutation extends Model
 
     public function maker()
     {
-        return $this->hasOne(Employee::class, 'id', 'created_by');
+        return $this->hasOne(Employee::class, 'id', 'created_by')->withTrashed();
     }
 
     public function branch()
     {
-        return $this->hasOne(Branch::class, 'id', 'branch_id');
+        return $this->hasOne(Branch::class, 'id', 'branch_id')->withTrashed();
     }
 
 

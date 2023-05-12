@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('item_id');
             $table->integer('qty');
             $table->double('price');
+            $table->double('discount');
             $table->timestamps();
             $table->softDeletes();
         });

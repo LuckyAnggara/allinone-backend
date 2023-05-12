@@ -5,6 +5,9 @@ use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\SalesController;
 use App\Http\Controllers\Api\VersionController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\ItemBrandController;
+use App\Http\Controllers\Api\ItemUnitController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,8 +27,11 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::resource('version', VersionController::class);
 Route::resource('items', ItemController::class);
+Route::resource('item-brands', ItemBrandController::class);
+Route::resource('item-units', ItemUnitController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('sales', SalesController::class);
+Route::resource('payment', PaymentController::class);
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');

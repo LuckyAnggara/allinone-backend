@@ -29,12 +29,12 @@ class Purchase extends Model
     
     public function maker()
     {
-        return $this->hasOne(Employee::class, 'id', 'created_by');
+        return $this->hasOne(Employee::class, 'id', 'created_by')->withTrashed();
     }
 
     public function supplier()
     {
-        return $this->hasOne(Employee::class, 'id', 'supplier_id');
+        return $this->hasOne(Employee::class, 'id', 'supplier_id')->withTrashed();
     }
 
     public function detail()
@@ -44,6 +44,6 @@ class Purchase extends Model
 
     public function branch()
     {
-        return $this->hasOne(Branch::class, 'id', 'branch_id');
+        return $this->hasOne(Branch::class, 'id', 'branch_id')->withTrashed();
     }
 }

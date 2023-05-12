@@ -20,22 +20,24 @@ class Sales extends Model
         'etc_cost',
         'etc_cost_desc',
         'grand_total',
-        'receivable',
+        'credit',
+        'remaining_credit',
+        'status',
         'due_date',
         'created_by',
         'branch_id',
     ];
 
-    protected $appends = ['remaining_receivable','total_payment'];
+    protected $appends = ['remaining_credit','total_payment'];
 
     public function maker()
     {
-        return $this->hasOne(Employee::class, 'id', 'created_by');
+        return $this->hasOne(Employee::class, 'id', 'created_by')->withTrashed();
     }
 
     public function customer()
     {
-        return $this->hasOne(Customer::class, 'id', 'customer_id');
+        return $this->hasOne(Customer::class, 'id', 'customer_id')->withTrashed();
     }
 
     public function detail()
@@ -45,10 +47,10 @@ class Sales extends Model
 
     public function payment()
     {
-        return $this->hasMany(AccountReceivable::class, 'sale_id', 'id')->orderBy('created_at');
+        return $this->hasMany(PaymentDetail::class, 'sale_id', 'id')->orderBy('created_at','DESC');
     }
 
-    public function getRemainingReceivableAttribute()
+    public function getRemainingCreditAttribute()
     {
         return $this->grand_total - $this->payment->sum('payment');
     }
@@ -60,6 +62,6 @@ class Sales extends Model
 
     public function branch()
     {
-        return $this->hasOne(Branch::class, 'id', 'branch_id');
+        return $this->hasOne(Branch::class, 'id', 'branch_id')->withTrashed();
     }
 }

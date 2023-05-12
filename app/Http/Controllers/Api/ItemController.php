@@ -6,6 +6,8 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use stdClass;
 
 class ItemController extends BaseController
 {
@@ -34,8 +36,8 @@ class ItemController extends BaseController
                 'name' => 'required',
                 'unit_id' => 'required',
                 'brand_id' => 'required',
-                'warehouse_id' => 'required',
-                'rack' => 'required',
+                // 'warehouse_id' => 'required',
+                // 'rack' => 'required',
                 'created_by' => 'required',
             ]);
             // create a new instance of YourModel using the validated data
@@ -45,6 +47,45 @@ class ItemController extends BaseController
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendError($e, 'Failed to saved data');
+        }
+    }
+
+        public function update(Request $request, $id)
+    {
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'name' => 'required',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            $item = Item::findOrFail($id);
+            $item->update($input);
+
+            DB::commit();
+            return $this->sendResponse($item, 'Updated berhasil', 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError($e->getMessage(), 'Error');
+        }
+    }
+
+        public function destroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            $item = Item::find($id);
+            if ($item) {
+               
+                $item->delete();
+                DB::commit();
+                return $this->sendResponse($item, 'Item berhasil dihapus', 200);
+            } else {
+                return $this->sendError('', 'Data tidak ditemukan', 404);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Terjadi kesalahan', $e->getMessage(), 500);
         }
     }
 }

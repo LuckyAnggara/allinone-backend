@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('account_receivables', function (Blueprint $table) {
+        Schema::create('payment_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sale_id');
             $table->decimal('payment', 10, 2)->default(0);
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('account_receivables');
+        Schema::dropIfExists('payment_details');
     }
 };

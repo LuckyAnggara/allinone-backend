@@ -6,7 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\SaleDetail;
 use App\Models\Sales;
 use App\Helpers\InvoiceHelper;
-use App\Http\Controllers\api\AccountReceivableController;
+use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\API\CashTransactionController;
 use App\Http\Controllers\API\MutationController;
 use App\Models\CashTransaction;
@@ -15,7 +15,6 @@ use App\Models\ItemMutation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-use PhpParser\Node\Expr\Cast\Object_;
 use stdClass;
 
 class SalesController extends BaseController
@@ -25,30 +24,35 @@ class SalesController extends BaseController
         $perPage = $request->input('limit', 5);
         $name = $request->input('name');
         $branch = $request->input('branch');
-        $startDate = $request->input('branch');
-        $endDate = $request->input('endDate');
-        $invoice = $request->input('invoice');
-        $minTotal = $request->input('mintotal');
+        $startDate = $request->input('start-date');
+        $endDate = $request->input('end-date');
+        $minTotal = $request->input('min-total');
+        $status = $request->input('status');
 
         $result = Sales::select('sales.*')
             ->join('customers', 'customers.id', '=', 'sales.customer_id')
             ->when($name, function ($query, $name) {
-                return $query->where('customers.name', 'like', '%' . $name . '%');
+                return $query
+                    ->where('customers.name', 'like', '%' . $name . '%')
+                    ->orWhere('invoice', 'like', '%' . $name . '%')
+                    ->orWhere('grand_total', 'like', '%' . $name . '%');
             })
             ->when($branch, function ($query, $branch) {
                 return $query->where('sales.branch_id', $branch);
             })
-            ->when($invoice, function ($query, $invoice) {
-                return $query->where('invoice', 'like', '%' . $invoice . '%');
-            })
             ->when($minTotal, function ($query, $minTotal) {
                 return $query->where('grand_total', '>=', $minTotal);
             })
+            ->when($status, function ($query, $status) {
+                return $query->where('credit', $status);
+            })
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
-                return $query->whereBetween('created_at', [$startDate, $endDate]);
+                $startDate = Carbon::createFromFormat('d M Y', $startDate)->format('Y-m-d 00:00:00');
+                $endDate = Carbon::createFromFormat('d M Y', $endDate)->format('Y-m-d 23:59:59');
+                return $query->whereBetween('sales.created_at', [$startDate, $endDate]);
             })
             ->with(['customer', 'detail', 'maker', 'branch'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('sales.created_at', 'desc')
             ->paginate($perPage);
 
         return $this->sendResponse($result, 'Data fetched');
@@ -73,7 +77,8 @@ class SalesController extends BaseController
                 'etc_cost' => $data->total->etc ?? 0, //biaya lainnya
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
                 'grand_total' => $data->total->total ?? 0,
-                'receivable' => $data->transaction->isCredit,
+                'credit' => $data->transaction->isCredit,
+                'status'=> $data->transaction->isCredit ? 'BELUM LUNAS' : 'LUNAS', 
                 'branch_id' => $data->user->branchId,
                 'created_by' => $data->user->id,
                 'created_at' => Carbon::today(),
@@ -89,15 +94,11 @@ class SalesController extends BaseController
                     $data->transaction->amount = $data->credit->amount;
                     CashTransactionController::create($data->transaction, $data->user, $transactionNotes);
                 }
-                AccountReceivableController::create($data->credit, $sales->id);
-
-                $sales->receivable = true;
-
+                PaymentController::create($data->credit, $sales->id);
+                $sales->credit = true;
                 $carbon = Carbon::createFromFormat('d M Y', $data->credit->due_date);
-
                 // Mengubah format tanggal menjadi "YYYY-MM-DD"
                 $formattedDate = $carbon->format('Y-m-d');
-
                 $sales->due_date = $formattedDate;
                 $sales->save();
             }
@@ -111,6 +112,7 @@ class SalesController extends BaseController
                     'item_id' => $value->id,
                     'qty' => $value->qty,
                     'price' => $value->price,
+                    'discount' => $value->disc
                 ]);
 
                 $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
@@ -129,7 +131,8 @@ class SalesController extends BaseController
     public function show($id)
     {
         $result = Sales::where('id', $id)
-            ->with(['customer', 'detail.item.unit', 'maker', 'branch','payment'])
+            ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment'])
+            
             ->first();
         if ($result) {
             return $this->sendResponse($result, 'Data fetched');
@@ -139,7 +142,6 @@ class SalesController extends BaseController
 
     public function destroy($id)
     {
-        
         DB::beginTransaction();
         try {
             $sales = Sales::find($id);
@@ -151,7 +153,7 @@ class SalesController extends BaseController
                     $user = new stdClass();
                     $user->branchId = $sales->branch_id;
                     $user->id = $sales->created_by;
-                    $notes = 'Hapus Transaksi #'.$sales->invoice;
+                    $notes = 'Hapus Transaksi #' . $sales->invoice;
                     MutationController::create($detail, $user, $notes);
                     // $detail->delete();
                 }
@@ -159,11 +161,11 @@ class SalesController extends BaseController
                 DB::commit();
                 return $this->sendResponse($saleDetails, 'Data sales berhasil dihapus', 200);
             } else {
-                return $this->sendError('','Data sales tidak ditemukan', 404);
+                return $this->sendError('', 'Data sales tidak ditemukan', 404);
             }
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Terjadi kesalahan',$e->getMessage(), 500);
+            return $this->sendError('Terjadi kesalahan', $e->getMessage(), 500);
         }
     }
 }

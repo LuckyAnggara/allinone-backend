@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\api;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Models\AccountReceivable;
+use App\Models\PaymentDetail;
+use App\Models\Sales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
-class AccountReceivableController extends BaseController
+class PaymentController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -19,7 +20,7 @@ class AccountReceivableController extends BaseController
      */
     public function index($sale_id)
     {
-        $accountReceivables = AccountReceivable::where('sale_id', $sale_id)->get();
+        $accountReceivables = PaymentDetail::where('sale_id', $sale_id)->get();
         return $this->sendResponse($accountReceivables, 'Data fetched');
     }
 
@@ -37,13 +38,18 @@ class AccountReceivableController extends BaseController
             $validated = $request->validate([
                 'sale_id' => 'required',
                 'payment' => 'required|numeric',
-                'note' => 'nullable|string',
+                'notes' => 'nullable|string',
                 'created_at' => 'nullable|date',
             ]);
 
-            $accountReceivable = AccountReceivable::create($validated);
-            DB::commit();
+            $accountReceivable = PaymentDetail::create($validated);
 
+            $dataSales = Sales::find($request->sale_id);
+            if ($dataSales->remaining_credit <= 0) {
+                $dataSales->status = 'LUNAS';
+                $dataSales->save();
+            }
+            DB::commit();
             return $this->sendResponse($accountReceivable, 'Data created', 201);
         } catch (\Exception $e) {
             DB::rollback();
@@ -53,17 +59,16 @@ class AccountReceivableController extends BaseController
 
     static function create($data, $id)
     {
-        AccountReceivable::create([
+        PaymentDetail::create([
             'sale_id' => $id,
             'notes' => $data->notes,
-            'payment'=> $data->amount
+            'payment' => $data->amount,
         ]);
     }
 
-
     public function show($id)
     {
-        $accountReceivable = AccountReceivable::findOrFail($id);
+        $accountReceivable = PaymentDetail::findOrFail($id);
         return $this->sendResponse($accountReceivable, 'Data fetched');
     }
 
@@ -76,7 +81,7 @@ class AccountReceivableController extends BaseController
             'created_at' => 'nullable|date',
         ]);
 
-        $accountReceivable = AccountReceivable::findOrFail($id);
+        $accountReceivable = PaymentDetail::findOrFail($id);
         $accountReceivable->update($validated);
 
         return $this->sendResponse($accountReceivable, 'Data fetched');
@@ -84,9 +89,14 @@ class AccountReceivableController extends BaseController
 
     public function destroy($id)
     {
-        $accountReceivable = AccountReceivable::findOrFail($id);
-        $accountReceivable->delete();
+        $paymentDetail = PaymentDetail::findOrFail($id);
+        $paymentDetail->delete();
 
-        return $this->sendResponse($accountReceivable, 'Data fetched');
+        $dataSales = Sales::find($paymentDetail->sale_id);
+        if ($dataSales->remaining_credit > 0) {
+            $dataSales->status = 'BELUM LUNAS';
+            $dataSales->save();
+        } 
+        return $this->sendResponse($paymentDetail, 'Data fetched');
     }
 }
