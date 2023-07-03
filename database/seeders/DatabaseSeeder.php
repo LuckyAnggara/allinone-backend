@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\ItemBrand;
+use App\Models\ItemBuyingPrice;
 use App\Models\ItemUnit;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
@@ -22,7 +23,7 @@ class DatabaseSeeder extends Seeder
         
         \App\Models\Employee::factory(5)->create();
         \App\Models\User::factory(2)->create();
-        \App\Models\Item::factory(15)->create();
+        \App\Models\Item::factory(6)->create();
         \App\Models\Branch::factory(5)->create();
 
         // \App\Models\User::factory()->create([
@@ -74,6 +75,31 @@ class DatabaseSeeder extends Seeder
             'name' => 'Pabrik',
             'address' => 'Jl Raya Limbangan 2',
             'pic_id' => 7
+        ]);
+
+        ItemBuyingPrice::created([
+            'item_id' => '1',
+            'price' => '24000',
+        ]);
+
+        ItemBuyingPrice::created([
+            'item_id' => '2',
+            'price' => '30000',
+        ]);
+
+        ItemBuyingPrice::created([
+            'item_id' => '3',
+            'price' => '60000',
+        ]);
+
+        ItemBuyingPrice::created([
+            'item_id' => '4',
+            'price' => '50000',
+        ]);
+
+        ItemBuyingPrice::created([
+            'item_id' => '5',
+            'price' => '100000',
         ]);
     }
 }

@@ -14,12 +14,14 @@ class Item extends Model
         'name',
         'unit_id',
         'brand_id',
+        'stock',
+        'beginning_stock',
         'warehouse_id',
         'rack',
         'created_by',
     ];
 
-    protected $appends = ['balance'];
+    protected $appends = ['ending_stock','in_stock','out_stock','beginning_balance'];
 
     public function maker()
     {
@@ -46,8 +48,34 @@ class Item extends Model
         return $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');
     }
 
-    public function getBalanceAttribute()
+    public function buying_price()
     {
-        return $this->mutation->sum('debit') - $this->mutation->sum('credit');
+       return $this->hasOne(ItemBuyingPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
     }
+
+    public function price()
+    {
+       return $this->hasOne(ItemPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
+    }
+
+    public function getInStockAttribute()
+    {
+        return $this->mutation->sum('debit') ;
+    }
+
+    public function getOutStockAttribute()
+    {
+        return $this->mutation->sum('credit');
+    }
+
+    public function getEndingStockAttribute()
+    {
+        return $this->beginning_stock - $this->mutation->sum('debit') - $this->mutation->sum('credit');
+    }
+
+    public function getBeginningBalanceAttribute()
+    {
+        return $this->beginning_stock * $this->buying_price->price;
+    }
+
 }
