@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\ItemBeginningStock;
 use App\Models\ItemBrand;
-use App\Models\ItemBuyingPrice;
 use App\Models\ItemUnit;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
@@ -20,10 +20,10 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
 
-        
+
         \App\Models\Employee::factory(5)->create();
         \App\Models\User::factory(2)->create();
-        \App\Models\Item::factory(6)->create();
+        \App\Models\Item::factory(8)->create();
         \App\Models\Branch::factory(5)->create();
 
         // \App\Models\User::factory()->create([
@@ -59,7 +59,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Sack'
         ]);
 
- 
+
         ItemBrand::create([
             'name' => 'BBM Trust'
         ]);
@@ -77,29 +77,39 @@ class DatabaseSeeder extends Seeder
             'pic_id' => 7
         ]);
 
-        ItemBuyingPrice::created([
+        ItemBeginningStock::created([
             'item_id' => '1',
+            'balance' => 20,
             'price' => '24000',
+            'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBuyingPrice::created([
+        ItemBeginningStock::created([
             'item_id' => '2',
+            'balance' => 70,
             'price' => '30000',
+            'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBuyingPrice::created([
+        ItemBeginningStock::created([
             'item_id' => '3',
+            'balance' => 60,
             'price' => '60000',
+            'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBuyingPrice::created([
+        ItemBeginningStock::created([
             'item_id' => '4',
+            'balance' => 200,
             'price' => '50000',
+            'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBuyingPrice::created([
+        ItemBeginningStock::created([
             'item_id' => '5',
+            'balance' => 100,
             'price' => '100000',
+            'notes' => 'periode_awal_03072023'
         ]);
     }
 }

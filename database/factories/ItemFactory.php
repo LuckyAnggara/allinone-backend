@@ -16,12 +16,12 @@ class ItemFactory extends Factory
      */
     public function definition()
     {
-         return [
+        return [
             'name' => $this->faker->word(),
-            'unit_id' => $this->faker->numberBetween(1,8),
-            'brand_id' => $this->faker->numberBetween(1,3),
-            'beginning_stock' => $this->faker->numberBetween(50,100),
-            'warehouse_id' =>1,
+            'unit_id' => $this->faker->numberBetween(1, 8),
+            'brand_id' => $this->faker->numberBetween(1, 3),
+            // 'beginning_stock' => $this->faker->numberBetween(50,100),
+            'warehouse_id' => 1,
             'created_by' => 1,
         ];
     }

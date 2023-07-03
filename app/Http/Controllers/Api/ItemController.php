@@ -17,7 +17,7 @@ class ItemController extends BaseController
         $perPage = $request->input('limit', 5);
         $name = $request->input('name');
 
-        $items = Item::with(['brand', 'unit',  'maker','price'])
+        $items = Item::with(['brand', 'unit', 'maker', 'price'])
             ->when($name, function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
             })
@@ -50,7 +50,7 @@ class ItemController extends BaseController
         }
     }
 
-        public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $input = $request->all();
         $validator = Validator::make($input, [
@@ -70,13 +70,13 @@ class ItemController extends BaseController
         }
     }
 
-        public function destroy($id)
+    public function destroy($id)
     {
         DB::beginTransaction();
         try {
             $item = Item::find($id);
             if ($item) {
-               
+
                 $item->delete();
                 DB::commit();
                 return $this->sendResponse($item, 'Item berhasil dihapus', 200);

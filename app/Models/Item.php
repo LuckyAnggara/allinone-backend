@@ -15,13 +15,12 @@ class Item extends Model
         'unit_id',
         'brand_id',
         'stock',
-        'beginning_stock',
         'warehouse_id',
         'rack',
         'created_by',
     ];
 
-    protected $appends = ['ending_stock','in_stock','out_stock','beginning_balance'];
+    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance'];
 
     public function maker()
     {
@@ -48,19 +47,34 @@ class Item extends Model
         return $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');
     }
 
-    public function buying_price()
-    {
-       return $this->hasOne(ItemBuyingPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
-    }
+    // public function buying_price()
+    // {
+    //     return $this->hasOne(ItemBuyingPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
+    // }
 
     public function price()
     {
-       return $this->hasOne(ItemPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
+        return $this->hasOne(ItemPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
     }
+
+    public function beginning_balance()
+    {
+        return $this->hasOne(ItemBeginningStock::class, 'item_id', 'id')->latestOfMany();
+    }
+
+    public function getBegBalanceAttribute()
+    {
+        return [
+            'stock' => $this->beginning_balance->stock,
+            'price' => $this->beginning_balance->price,
+            'balance' => $this->beginning_balance->stock * $this->beginning_balance->price,
+        ];
+    }
+
 
     public function getInStockAttribute()
     {
-        return $this->mutation->sum('debit') ;
+        return $this->mutation->sum('debit');
     }
 
     public function getOutStockAttribute()
@@ -70,12 +84,6 @@ class Item extends Model
 
     public function getEndingStockAttribute()
     {
-        return $this->beginning_stock - $this->mutation->sum('debit') - $this->mutation->sum('credit');
+        return $this->beginning_balance->stock + $this->mutation->sum('debit') - $this->mutation->sum('credit');
     }
-
-    public function getBeginningBalanceAttribute()
-    {
-        return $this->beginning_stock * $this->buying_price->price;
-    }
-
 }

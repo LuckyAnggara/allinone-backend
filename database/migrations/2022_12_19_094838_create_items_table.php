@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('unit_id')->nullable();
             $table->integer('brand_id')->nullable();
             $table->double('balance')->default(0);
-            $table->double('beginning_balance')->default(0);
+            // $table->double('beginning_stock')->default(0);
             $table->integer('warehouse_id')->default(0);
             $table->string('rack')->nullable();
             $table->integer('created_by');
