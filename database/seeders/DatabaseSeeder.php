@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\Account;
 use App\Models\ItemBeginningStock;
 use App\Models\ItemBrand;
 use App\Models\ItemUnit;
@@ -77,39 +78,102 @@ class DatabaseSeeder extends Seeder
             'pic_id' => 7
         ]);
 
-        ItemBeginningStock::created([
+        ItemBeginningStock::create([
             'item_id' => '1',
-            'balance' => 20,
+            'stock' => 20,
             'price' => '24000',
             'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBeginningStock::created([
+        ItemBeginningStock::create([
             'item_id' => '2',
-            'balance' => 70,
+            'stock' => 70,
             'price' => '30000',
             'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBeginningStock::created([
+        ItemBeginningStock::create([
             'item_id' => '3',
-            'balance' => 60,
+            'stock' => 60,
             'price' => '60000',
             'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBeginningStock::created([
+        ItemBeginningStock::create([
             'item_id' => '4',
-            'balance' => 200,
+            'stock' => 200,
             'price' => '50000',
             'notes' => 'periode_awal_03072023'
         ]);
 
-        ItemBeginningStock::created([
+        ItemBeginningStock::create([
             'item_id' => '5',
-            'balance' => 100,
+            'stock' => 100,
             'price' => '100000',
             'notes' => 'periode_awal_03072023'
+        ]);
+
+        Account::create([
+            'account_no' => '1',
+            'name' => 'PENJUALAN',
+            'category' => 'LABA_RUGI',
+            'type' => 'KREDIT',
+        ]);
+
+        Account::create([
+            'account_no' => '2',
+            'name' => 'RETUR PENJUALAN',
+            'category' => 'LABA_RUGI',
+            'type' => 'DEBIT',
+        ]);
+
+        Account::create([
+            'account_no' => '3',
+            'name' => 'DISKON',
+            'category' => 'LABA_RUGI',
+            'type' => 'DEBIT',
+        ]);
+
+        Account::create([
+            'account_no' => '4',
+            'name' => 'PENJUALAN KOTOR',
+            'category' => 'LABA_RUGI',
+            'type' => 'KREDIT',
+        ]);
+
+        Account::create([
+            'account_no' => '5',
+            'name' => 'PERSEDIAAN AWAL',
+            'category' => 'LABA_RUGI',
+            'type' => 'DEBIT',
+        ]);
+
+        Account::create([
+            'account_no' => '6',
+            'name' => 'PEMBELIAN',
+            'category' => 'LABA_RUGI',
+            'type' => 'KREDIT',
+        ]);
+
+        Account::create([
+            'account_no' => '7',
+            'name' => 'PERSEDIAAN AKHIR',
+            'category' => 'LABA_RUGI',
+            'type' => 'DEBIT',
+        ]);
+
+        Account::create([
+            'account_no' => '8',
+            'name' => 'HARGA POKOK PENJUALAN',
+            'category' => 'LABA_RUGI',
+            'type' => 'DEBIT',
+        ]);
+
+        Account::create([
+            'account_no' => '9',
+            'name' => 'LABA KOTOR',
+            'category' => 'LABA_RUGI',
+            'type' => 'KREDIT',
         ]);
     }
 }

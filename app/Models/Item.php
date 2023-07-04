@@ -65,12 +65,11 @@ class Item extends Model
     public function getBegBalanceAttribute()
     {
         return [
-            'stock' => $this->beginning_balance->stock,
-            'price' => $this->beginning_balance->price,
-            'balance' => $this->beginning_balance->stock * $this->beginning_balance->price,
+            'stock' => $this->beginning_balance ?  $this->beginning_balance->stock : 0,
+            'price' => $this->beginning_balance ? $this->beginning_balance->price : 0,
+            'balance' => ($this->beginning_balance ?  $this->beginning_balance->stock : 0) * ($this->beginning_balance ? $this->beginning_balance->price : 0),
         ];
     }
-
 
     public function getInStockAttribute()
     {
@@ -84,6 +83,6 @@ class Item extends Model
 
     public function getEndingStockAttribute()
     {
-        return $this->beginning_balance->stock + $this->mutation->sum('debit') - $this->mutation->sum('credit');
+        return $this->beginning_balance->stock ?? 0 + $this->mutation->sum('debit') - $this->mutation->sum('credit');
     }
 }
