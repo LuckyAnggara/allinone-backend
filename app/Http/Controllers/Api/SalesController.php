@@ -78,7 +78,7 @@ class SalesController extends BaseController
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
                 'grand_total' => $data->total->total ?? 0,
                 'credit' => $data->transaction->isCredit,
-                'status'=> $data->transaction->isCredit ? 'BELUM LUNAS' : 'LUNAS', 
+                'status' => $data->transaction->isCredit ? 'BELUM LUNAS' : 'LUNAS',
                 'branch_id' => $data->user->branchId,
                 'created_by' => $data->user->id,
                 'created_at' => Carbon::today(),
@@ -117,6 +117,7 @@ class SalesController extends BaseController
 
                 $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
                 $itemMutations[] = MutationController::create($value, $data->user, $notes);
+                $itemPrice[] = ItemPriceController::create($value);
             }
 
             DB::commit();
@@ -132,7 +133,7 @@ class SalesController extends BaseController
     {
         $result = Sales::where('id', $id)
             ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment'])
-            
+
             ->first();
         if ($result) {
             return $this->sendResponse($result, 'Data fetched');

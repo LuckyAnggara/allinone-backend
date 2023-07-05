@@ -47,11 +47,6 @@ class Item extends Model
         return $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');
     }
 
-    // public function buying_price()
-    // {
-    //     return $this->hasOne(ItemBuyingPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
-    // }
-
     public function price()
     {
         return $this->hasOne(ItemPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');

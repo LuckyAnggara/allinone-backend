@@ -17,4 +17,22 @@ class ItemPriceController extends BaseController
 
         return $this->sendResponse($data, 'Data fetched');
     }
+
+    static function create($data)
+    {
+        // $item = ItemPrice::where('item_id', $data->id)->where(function ($query) use ($data) {
+        //     $query->where('price', $data->price);
+        // });
+
+        // if ($item) {
+        //     return true;
+        // }
+
+        $result = ItemPrice::create([
+            'item_id' => $data->id,
+            'price' => $data->price,
+        ]);
+
+        return $result;
+    }
 }

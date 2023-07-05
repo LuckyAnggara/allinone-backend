@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class ItemBeginningStock extends Model
 {
@@ -15,4 +16,9 @@ class ItemBeginningStock extends Model
         'price',
         'notes',
     ];
+
+    public static function getTotal()
+    {
+        return self::select(DB::raw('SUM(stock * price) AS total'))->value('total');
+    }
 }

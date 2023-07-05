@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ItemMutation extends Model
 {
-   use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'item_id',
@@ -30,5 +30,22 @@ class ItemMutation extends Model
         return $this->hasOne(Branch::class, 'id', 'branch_id')->withTrashed();
     }
 
+    public static function calculateHPP()
+    {
+        $hpp = self::selectRaw('product_id, SUM(quantity) AS total_quantity, SUM(quantity * price) AS total_cost')
+            ->where('transaction_type', 'IN')
+            ->groupBy('product_id')
+            ->orderBy('transaction_date')
+            ->get();
 
+        $totalQuantity = 0;
+        $totalCost = 0;
+        foreach ($hpp as $item) {
+            $item->hpp = $totalQuantity > 0 ? $totalCost / $totalQuantity : 0;
+            $totalQuantity += $item->total_quantity;
+            $totalCost += $item->total_cost;
+        }
+
+        return $hpp;
+    }
 }

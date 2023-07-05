@@ -13,8 +13,11 @@ class FactBalance extends Model
 
     protected $hidden = [
         'id',
-        'account_id',
-        'created_at',
-        'updated_at'
     ];
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
+        // return $this->hasOne(Account::class, 'id', 'account_id')->withTrashed();
+    }
 }

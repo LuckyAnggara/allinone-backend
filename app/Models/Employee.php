@@ -20,9 +20,4 @@ class Employee extends Model
         'picture',
         'is_active',
     ];
-
-    // public function role()
-    // {
-    //     return $this->hasOne(Role::class, 'id', 'role_id');
-    // }
 }

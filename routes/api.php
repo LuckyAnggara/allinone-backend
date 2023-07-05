@@ -37,6 +37,11 @@ Route::resource('sales', SalesController::class);
 Route::resource('payment', PaymentController::class);
 Route::resource('account', AccountController::class);
 
+Route::get(
+    'account-generate',
+    [AccountController::class, 'generate']
+);
+
 Route::controller(AuthController::class)->group(function () {
     Route::post('register', 'register');
     Route::post('login', 'login');

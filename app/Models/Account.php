@@ -13,6 +13,15 @@ class Account extends Model
         'name',
         'category',
         'type',
-
     ];
+
+    public function today()
+    {
+        return $this->hasOne(Account::class, 'id', 'account_id')->withTrashed();
+    }
+
+    public function yesterday()
+    {
+        return $this->hasOne(Account::class, 'id', 'account_id')->withTrashed();
+    }
 }
