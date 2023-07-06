@@ -27,6 +27,18 @@ class ItemController extends BaseController
         return $this->sendResponse($items, 'Data fetched');
     }
 
+
+    public function show($id)
+    {
+        $result = Item::where('id', $id)
+            ->with(['brand', 'unit', 'maker', 'price'])
+            ->first();
+        if ($result) {
+            return $this->sendResponse($result, 'Data fetched');
+        }
+        return $this->sendError('Data not found');
+    }
+
     public function store(Request $request)
     {
         try {
