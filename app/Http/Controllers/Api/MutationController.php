@@ -9,7 +9,21 @@ use Illuminate\Support\Facades\DB;
 
 class MutationController extends BaseController
 {
-    
+
+    public function index(Request $request)
+    {
+        $perPage = $request->input('limit', 5);
+        $id = $request->input('id');
+
+        $result = ItemMutation::where('item_id', $id)->latest()
+            ->paginate($perPage);
+
+        if ($result) {
+            return $this->sendResponse($result, 'Data fetched');
+        }
+        return $this->sendError('Data not found');
+    }
+
     public function store(Request $request)
     {
         try {
@@ -23,13 +37,15 @@ class MutationController extends BaseController
         }
     }
 
-    static function create($data, $user, $notes)
+
+
+    static function create($data, $user, $notes, $link)
     {
         $isPenjualan = $data->penjualan ?? true;
         $qty = $data->qty ?? 0;
 
         $debit = !$isPenjualan ? $qty : 0;
-        $credit = !$isPenjualan? 0 : $qty;
+        $credit = !$isPenjualan ? 0 : $qty;
 
         $notes = $notes ?? 'tidak ada keterangan';
         $branchId = $user->branchId;
@@ -41,6 +57,7 @@ class MutationController extends BaseController
             'credit' => $credit,
             'balance' => 0,
             'notes' => $notes,
+            'link' => $link,
             'branch_id' => $branchId,
             'created_by' => $createdBy,
         ]);

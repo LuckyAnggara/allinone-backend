@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('credit')->default(0);
             $table->double('balance')->default(0);
             $table->text('notes')->nullable();
+            $table->text('link')->nullable();
             $table->integer('branch_id');
             $table->integer('created_by');
             $table->timestamps();

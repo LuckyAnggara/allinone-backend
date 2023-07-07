@@ -116,7 +116,8 @@ class SalesController extends BaseController
                 ]);
 
                 $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
-                $itemMutations[] = MutationController::create($value, $data->user, $notes);
+                $link = '/sales/invoice/' . $sales->id;
+                $itemMutations[] = MutationController::create($value, $data->user, $notes, $link);
                 $itemPrice[] = ItemPriceController::create($value);
             }
 
@@ -155,7 +156,7 @@ class SalesController extends BaseController
                     $user->branchId = $sales->branch_id;
                     $user->id = $sales->created_by;
                     $notes = 'Hapus Transaksi #' . $sales->invoice;
-                    MutationController::create($detail, $user, $notes);
+                    MutationController::create($detail, $user, $notes, '');
                     // $detail->delete();
                 }
                 $sales->delete();

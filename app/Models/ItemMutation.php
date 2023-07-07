@@ -16,6 +16,7 @@ class ItemMutation extends Model
         'credit',
         'balance',
         'notes',
+        'link',
         'branch_id',
         'created_by',
     ];

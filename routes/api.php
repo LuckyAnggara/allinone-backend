@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\ItemBrandController;
 use App\Http\Controllers\Api\ItemUnitController;
 use App\Http\Controllers\Api\ItemPriceController;
+use App\Http\Controllers\API\MutationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,7 @@ Route::resource('version', VersionController::class);
 Route::resource('items', ItemController::class);
 Route::resource('item-brands', ItemBrandController::class);
 Route::resource('item-units', ItemUnitController::class);
+Route::resource('item-mutation', MutationController::class);
 Route::resource('item-prices', ItemPriceController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('sales', SalesController::class);
@@ -40,6 +42,11 @@ Route::resource('account', AccountController::class);
 Route::get(
     'account-generate',
     [AccountController::class, 'generate']
+);
+
+Route::get(
+    'price-contoh',
+    [ItemPriceController::class, 'contoh']
 );
 
 Route::controller(AuthController::class)->group(function () {

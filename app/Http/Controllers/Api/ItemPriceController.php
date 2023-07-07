@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\ItemPrice;
 
+use function PHPUnit\Framework\isEmpty;
+
 class ItemPriceController extends BaseController
 {
     public function index(Request $request)
@@ -20,13 +22,15 @@ class ItemPriceController extends BaseController
 
     static function create($data)
     {
-        // $item = ItemPrice::where('item_id', $data->id)->where(function ($query) use ($data) {
-        //     $query->where('price', $data->price);
-        // });
+        $item = ItemPrice::where(function ($query) use ($data) {
+            $query->where('item_id', $data->id);
+            $query->where('price', $data->price);
+        })->get();
 
-        // if ($item) {
-        //     return true;
-        // }
+        if (!isEmpty($item)) {
+            return true;
+        }
+
 
         $result = ItemPrice::create([
             'item_id' => $data->id,
