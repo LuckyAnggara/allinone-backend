@@ -28,6 +28,11 @@ class SalesController extends BaseController
         $endDate = $request->input('end-date');
         $minTotal = $request->input('min-total');
         $status = $request->input('status');
+        $credit = $request->input('credit');
+
+        // $result = Sales::where('credit', $credit)->get();
+        // return $result;
+
 
         $result = Sales::select('sales.*')
             ->join('customers', 'customers.id', '=', 'sales.customer_id')
@@ -44,14 +49,17 @@ class SalesController extends BaseController
                 return $query->where('grand_total', '>=', $minTotal);
             })
             ->when($status, function ($query, $status) {
-                return $query->where('credit', $status);
+                return $query->where('status', $status);
+            })
+            ->when($credit, function ($query, $credit) {
+                return $query->where('credit', $credit);
             })
             ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
                 $startDate = Carbon::createFromFormat('d M Y', $startDate)->format('Y-m-d 00:00:00');
                 $endDate = Carbon::createFromFormat('d M Y', $endDate)->format('Y-m-d 23:59:59');
                 return $query->whereBetween('sales.created_at', [$startDate, $endDate]);
             })
-            ->with(['customer', 'detail', 'maker', 'branch'])
+            ->with(['customer',  'maker', 'branch'])
             ->orderBy('sales.created_at', 'desc')
             ->paginate($perPage);
 
