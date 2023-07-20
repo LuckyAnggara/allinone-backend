@@ -8,27 +8,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
+use function PHPUnit\Framework\isEmpty;
+
 class CustomerController extends BaseController
 {
 
     public function index(Request $request)
     {
         $perPage = $request->input('limit', 5);
-        $name = $request->input('name');
-       $branch = $request->input('branch');
+        $name = $request->input('name', null);
+        $branch = $request->input('branch');
 
-        $query = Customer::with(['branch', 'maker'])
-        ->where('member',true)
-            ->when($name, function ($query) use ($name) {
-                return $query->where('name', 'like', '%' . $name . '%');
-            })
-            ->when($branch, function ($query, $branch) {
-                return $query->where('branch_id', $branch);
-            })
-            ->latest()
-            ->paginate($perPage);
+        if ($name) {
+            $query = Customer::with(['branch', 'maker'])
+                ->where('member', true)
+                ->when($name, function ($query) use ($name) {
+                    return $query->where('name', 'like', '%' . $name . '%');
+                })
+                ->when($branch, function ($query, $branch) {
+                    return $query->where('branch_id', $branch);
+                })
+                ->latest()
+                ->paginate($perPage);
 
-        return $this->sendResponse($query, 'Data fetched');
+            return $this->sendResponse($query, 'Data fetched');
+        } else {
+            return $this->sendResponse([], 'Data fetched');
+        }
     }
 
     public function store(Request $request)
@@ -49,8 +55,8 @@ class CustomerController extends BaseController
 
     static function create($data, $user)
     {
-        $member = false;        
-        if($data->saveCustomer){
+        $member = false;
+        if ($data->saveCustomer) {
             $member = true;
         }
         return Customer::create([
