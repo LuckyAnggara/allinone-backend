@@ -15,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('item_units', function (Blueprint $table) {
             $table->id();
+            $table->string('item_id');
             $table->string('name');
+            $table->string('quantity');
             $table->String('abbreviation')->nullable();
             $table->timestamps();
             $table->softDeletes();

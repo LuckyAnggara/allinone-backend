@@ -26,7 +26,7 @@ return new class extends Migration
             $table->double('grand_total')->default(0);
             $table->boolean('credit')->default(false);
             $table->double('remaining_credit')->default(0);
-            $table->enum('payment_status', ['TUNAI', 'TRANSFER BANK', 'QR CODE', 'KREDIT']);
+            $table->enum('payment_status', ['TUNAI', 'TRANSFER BANK', 'QR CODE', 'DIGITAL PAYMENT']);
             $table->enum('status', ['LUNAS', 'BELUM LUNAS']);
             $table->date('due_date')->nullable();
             $table->integer('branch_id');

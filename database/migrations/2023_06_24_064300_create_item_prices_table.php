@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('item_prices', function (Blueprint $table) {
             $table->id();
             $table->integer('item_id');
+            $table->integer('unit_id');
             $table->double('price');
             $table->timestamps();
             $table->softDeletes();
