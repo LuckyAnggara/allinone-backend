@@ -33,32 +33,85 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         ItemUnit::create([
-            'name' => 'Kilogram'
+            'item_id' => '1',
+            'name' => 'Dus',
+            'price' => '20000'
         ]);
         ItemUnit::create([
-            'name' => 'Meter'
+            'item_id' => '1',
+            'name' => 'Pieces',
+            'price' => '2400'
         ]);
         ItemUnit::create([
-            'name' => 'Centimeter'
+            'item_id' => '2',
+            'name' => 'KG',
+            'price' => '100000'
         ]);
         ItemUnit::create([
-            'name' => 'Gram'
+            'item_id' => '2',
+            'name' => 'Roll',
+            'price' => '25000'
         ]);
         ItemUnit::create([
-            'name' => 'Ton'
+            'item_id' => '3',
+            'name' => 'Lusin',
+            'price' => '100000'
         ]);
         ItemUnit::create([
-            'name' => 'Buah'
+            'item_id' => '3',
+            'name' => 'Pieces',
+            'price' => '10000'
         ]);
         ItemUnit::create([
-            'name' => 'Lembar'
+            'item_id' => '4',
+            'name' => 'Rim',
+            'price' => '25000'
         ]);
         ItemUnit::create([
-            'name' => 'Roll'
+            'item_id' => '4',
+            'name' => 'Lembar',
+            'price' => '500'
         ]);
         ItemUnit::create([
-            'name' => 'Sack'
+            'item_id' => '5',
+            'name' => 'Dus',
+            'price' => '20000'
         ]);
+        ItemUnit::create([
+            'item_id' => '5',
+            'name' => 'Pieces',
+            'price' => '2400'
+        ]);
+        ItemUnit::create([
+            'item_id' => '6',
+            'name' => 'KG',
+            'price' => '100000'
+        ]);
+        ItemUnit::create([
+            'item_id' => '6',
+            'name' => 'Roll',
+            'price' => '25000'
+        ]);
+        ItemUnit::create([
+            'item_id' => '7',
+            'name' => 'Lusin',
+            'price' => '100000'
+        ]);
+        ItemUnit::create([
+            'item_id' => '7',
+            'name' => 'Pieces',
+            'price' => '10000'
+        ]);
+        ItemUnit::create([
+            'item_id' => '8',
+            'name' => 'Rim',
+            'price' => '25000'
+        ]);
+        ItemUnit::create([
+            'item_id' => '8',
+            'name' => 'Lembar',
+            'price' => '500'
+        ]);      
 
 
         ItemBrand::create([
@@ -77,7 +130,7 @@ class DatabaseSeeder extends Seeder
             'address' => 'Jl Raya Limbangan 2',
             'pic_id' => 7
         ]);
-
+        
         ItemBeginningStock::create([
             'item_id' => '1',
             'stock' => 20,
