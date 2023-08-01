@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BankController;
 use App\Http\Controllers\Api\ItemController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\SalesController;
@@ -36,6 +37,7 @@ Route::resource('item-units', ItemUnitController::class);
 Route::resource('item-mutation', MutationController::class);
 Route::resource('item-prices', ItemPriceController::class);
 Route::resource('tax-detail', TaxController::class);
+Route::resource('banks', BankController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('sales', SalesController::class);
 Route::resource('payment', PaymentController::class);
