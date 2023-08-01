@@ -28,7 +28,7 @@ class Sales extends Model
         'branch_id',
     ];
 
-    protected $appends = ['remaining_credit','total_payment'];
+    protected $appends = ['remaining_credit', 'total_payment'];
 
     public function maker()
     {
@@ -47,7 +47,7 @@ class Sales extends Model
 
     public function payment()
     {
-        return $this->hasMany(PaymentDetail::class, 'sale_id', 'id')->orderBy('created_at','DESC');
+        return $this->hasMany(PaymentDetail::class, 'sale_id', 'id')->orderBy('created_at', 'DESC');
     }
 
     public function getRemainingCreditAttribute()

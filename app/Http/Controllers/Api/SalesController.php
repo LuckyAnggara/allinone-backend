@@ -27,7 +27,8 @@ class SalesController extends BaseController
         $startDate = $request->input('start-date');
         $endDate = $request->input('end-date');
         $minTotal = $request->input('min-total');
-        $status = $request->input('status');
+        $paymentStatus = $request->input('payment-status');
+        $deliveryStatus = $request->input('delivery-status');
         $credit = $request->input('credit');
 
         // $result = Sales::where('credit', $credit)->get();
@@ -48,8 +49,11 @@ class SalesController extends BaseController
             ->when($minTotal, function ($query, $minTotal) {
                 return $query->where('grand_total', '>=', $minTotal);
             })
-            ->when($status, function ($query, $status) {
-                return $query->where('status', $status);
+            ->when($paymentStatus, function ($query, $paymentStatus) {
+                return $query->where('status', $paymentStatus);
+            })
+            ->when($deliveryStatus, function ($query, $deliveryStatus) {
+                return $query->where('shipping_type', $deliveryStatus);
             })
             ->when($credit, function ($query, $credit) {
                 return $query->where('credit', $credit);
@@ -81,7 +85,8 @@ class SalesController extends BaseController
                 'total' => $data->total->subTotal ?? 0,
                 'discount' => $data->total->discount ?? 0,
                 'tax' => $data->total->tax ?? 0, // pajak
-                'shipping_cost' => $data->total->shipping ?? 0, //ongkir
+                'shipping_type' => $data->shipping->type ?? 'TAKE AWAY', // TIPE PENGIRIMAN
+                'shipping_cost' => $data->shipping->fee ?? 0, //ongkir
                 'etc_cost' => $data->total->etc ?? 0, //biaya lainnya
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
                 'grand_total' => $data->total->total ?? 0,

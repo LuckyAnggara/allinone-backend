@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 use App\Models\Account;
+use App\Models\Customer;
 use App\Models\ItemBeginningStock;
 use App\Models\ItemBrand;
 use App\Models\ItemUnit;
@@ -32,86 +33,34 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
+
         ItemUnit::create([
-            'item_id' => '1',
-            'name' => 'Dus',
-            'price' => '20000'
+            'name' => 'Kilogram'
         ]);
         ItemUnit::create([
-            'item_id' => '1',
-            'name' => 'Pieces',
-            'price' => '2400'
+            'name' => 'Meter'
         ]);
         ItemUnit::create([
-            'item_id' => '2',
-            'name' => 'KG',
-            'price' => '100000'
+            'name' => 'Centimeter'
         ]);
         ItemUnit::create([
-            'item_id' => '2',
-            'name' => 'Roll',
-            'price' => '25000'
+            'name' => 'Gram'
         ]);
         ItemUnit::create([
-            'item_id' => '3',
-            'name' => 'Lusin',
-            'price' => '100000'
+            'name' => 'Ton'
         ]);
         ItemUnit::create([
-            'item_id' => '3',
-            'name' => 'Pieces',
-            'price' => '10000'
+            'name' => 'Buah'
         ]);
         ItemUnit::create([
-            'item_id' => '4',
-            'name' => 'Rim',
-            'price' => '25000'
+            'name' => 'Lembar'
         ]);
         ItemUnit::create([
-            'item_id' => '4',
-            'name' => 'Lembar',
-            'price' => '500'
+            'name' => 'Roll'
         ]);
         ItemUnit::create([
-            'item_id' => '5',
-            'name' => 'Dus',
-            'price' => '20000'
+            'name' => 'Sack'
         ]);
-        ItemUnit::create([
-            'item_id' => '5',
-            'name' => 'Pieces',
-            'price' => '2400'
-        ]);
-        ItemUnit::create([
-            'item_id' => '6',
-            'name' => 'KG',
-            'price' => '100000'
-        ]);
-        ItemUnit::create([
-            'item_id' => '6',
-            'name' => 'Roll',
-            'price' => '25000'
-        ]);
-        ItemUnit::create([
-            'item_id' => '7',
-            'name' => 'Lusin',
-            'price' => '100000'
-        ]);
-        ItemUnit::create([
-            'item_id' => '7',
-            'name' => 'Pieces',
-            'price' => '10000'
-        ]);
-        ItemUnit::create([
-            'item_id' => '8',
-            'name' => 'Rim',
-            'price' => '25000'
-        ]);
-        ItemUnit::create([
-            'item_id' => '8',
-            'name' => 'Lembar',
-            'price' => '500'
-        ]);      
 
 
         ItemBrand::create([
@@ -130,7 +79,7 @@ class DatabaseSeeder extends Seeder
             'address' => 'Jl Raya Limbangan 2',
             'pic_id' => 7
         ]);
-        
+
         ItemBeginningStock::create([
             'item_id' => '1',
             'stock' => 20,
@@ -227,6 +176,16 @@ class DatabaseSeeder extends Seeder
             'name' => 'LABA KOTOR',
             'category' => 'LABA_RUGI',
             'type' => 'KREDIT',
+        ]);
+
+        Customer::create([
+            'id' => '1',
+            'name' => '-',
+            'address' => '-',
+            'phone_number' => '-',
+            'member' => 1,
+            'created_by' => 1,
+            'branch_id' => 0,
         ]);
     }
 }

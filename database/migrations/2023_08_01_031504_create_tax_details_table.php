@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('item_units', function (Blueprint $table) {
+        Schema::create('tax_details', function (Blueprint $table) {
             $table->id();
-            // $table->string('item_id');
             $table->string('name');
-            // $table->string('quantity');
-            $table->String('abbreviation')->nullable();
+            $table->double('value');
             $table->timestamps();
             $table->softDeletes();
         });
@@ -31,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('item_units');
+        Schema::dropIfExists('tax_details');
     }
 };
