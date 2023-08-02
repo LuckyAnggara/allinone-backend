@@ -14,4 +14,11 @@ class TaxDetail extends Model
         'name',
         'value',
     ];
+
+    protected $hidden = [
+        'deleted_at',
+        'created_by',
+        'created_at',
+        'updated_at',
+    ];
 }

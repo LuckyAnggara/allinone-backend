@@ -10,6 +10,7 @@ use App\Http\Controllers\API\BankTransactionController;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\API\CashTransactionController;
 use App\Http\Controllers\API\MutationController;
+use App\Http\Controllers\API\ShippingDetailController;
 use App\Models\CashTransaction;
 use App\Models\Customer;
 use App\Models\ItemMutation;
@@ -83,7 +84,7 @@ class SalesController extends BaseController
             $sales = Sales::create([
                 'invoice' => InvoiceHelper::generateInvoiceNumber($data->userData->branch_id),
                 'customer_id' => $customer->id,
-                'total' => $data->total->subTotal ?? 0,
+                'total' => $data->total->subtotal ?? 0,
                 'discount' => $data->total->discount ?? 0,
                 'tax' => $data->total->tax ?? 0, // pajak
                 'shipping_type' => $data->shipping->type ?? 'TAKE AWAY', // TIPE PENGIRIMAN
@@ -98,6 +99,7 @@ class SalesController extends BaseController
                 'created_by' => $data->userData->id,
                 'created_at' => Carbon::today(),
             ]);
+            
             if ($data->transaction->paymentType == 'CASH') {
                 $transactionNotes = 'Uang masuk transaksi Invoice - #' . $sales->invoice;
                 CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
@@ -107,6 +109,7 @@ class SalesController extends BaseController
             }
 
             if ($data->shipping->type == 'DELIVERY') {
+                ShippingDetailController::create($data->shipping, $sales->id);
             }
 
             if ($data->transaction->isCredit == true) {
@@ -154,7 +157,7 @@ class SalesController extends BaseController
     public function show($id)
     {
         $result = Sales::where('id', $id)
-            ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment'])
+            ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment','shipping'])
 
             ->first();
         if ($result) {

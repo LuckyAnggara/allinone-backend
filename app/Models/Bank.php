@@ -18,4 +18,13 @@ class Bank extends Model
         'created_by',
         'branch_id',
     ];
+
+    protected $hidden = [
+        'account_id',
+            'deleted_at',
+        'created_by',
+        'created_at',
+        'updated_at',
+        'branch_id',
+    ];
 }

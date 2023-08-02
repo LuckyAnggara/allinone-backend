@@ -42,6 +42,11 @@ class Sales extends Model
         return $this->hasOne(Customer::class, 'id', 'customer_id')->withTrashed();
     }
 
+    public function shipping()
+    {
+        return $this->hasOne(ShippingDetail::class, 'sale_id', 'id')->withTrashed();
+    }
+
     public function detail()
     {
         return $this->hasMany(SaleDetail::class, 'sale_id', 'id')->orderBy('created_at');

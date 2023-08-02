@@ -32,6 +32,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+                $this->call([
+                TaxSeeder::class,
+                BankSeeder::class,
+            ]);
 
 
         ItemUnit::create([
