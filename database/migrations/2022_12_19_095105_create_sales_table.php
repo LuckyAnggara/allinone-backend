@@ -20,14 +20,15 @@ return new class extends Migration
             $table->double('total')->default(0);
             $table->double('discount')->default(0);
             $table->double('tax')->default(0);
+            $table->enum('shipping_type', ['TAKE AWAY', 'DELIVERY']);
             $table->double('shipping_cost')->default(0);
             $table->double('etc_cost')->default(0);
             $table->string('etc_cost_desc')->nullable();
             $table->double('grand_total')->default(0);
             $table->boolean('credit')->default(false);
             $table->double('remaining_credit')->default(0);
-            $table->enum('payment_status', ['TUNAI', 'TRANSFER BANK', 'QR CODE', 'DIGITAL PAYMENT']);
-            $table->enum('status', ['LUNAS', 'BELUM LUNAS']);
+            $table->enum('payment_type', ['TUNAI', 'TRANSFER BANK', 'QR CODE', 'DIGITAL PAYMENT']);
+            $table->enum('payment_status', ['LUNAS', 'BELUM LUNAS']);
             $table->date('due_date')->nullable();
             $table->integer('branch_id');
             $table->integer('created_by');

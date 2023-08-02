@@ -48,7 +48,7 @@ class MutationController extends BaseController
         $credit = !$isPenjualan ? 0 : $qty;
 
         $notes = $notes ?? 'tidak ada keterangan';
-        $branchId = $user->branchId;
+        $branchId = $user->branch_id;
         $createdBy = $user->id;
 
         $itemMutation = ItemMutation::create([

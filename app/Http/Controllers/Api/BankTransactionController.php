@@ -3,20 +3,20 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\CashTransaction;
+use App\Models\BankTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class CashTransactionController extends Controller
+class BankTransactionController extends Controller
 {
     public function index()
     {
         $today = Carbon::now()->format('Y-m-d');
-        $transactions = CashTransaction::whereDate('transaction_date', $today)->get();
+        $transactions = BankTransaction::whereDate('transaction_date', $today)->get();
         $totalCashIn = $transactions->where('type', 'IN')->sum('amount');
         $totalCashOut = $transactions->where('type', 'OUT')->sum('amount');
-        $lastTransaction = CashTransaction::latest()->first();
+        $lastTransaction = BankTransaction::latest()->first();
 
         $balance = $lastTransaction ? $lastTransaction->balance : 0;
         $currentBalance = $balance + $totalCashIn - $totalCashOut;
@@ -36,7 +36,7 @@ class CashTransactionController extends Controller
         $user = $data->user;
         try {
             DB::beginTransaction();
-            $result = CashTransaction::create($transactions, $user, $data->transactions->description);
+            $result = BankTransaction::create($transactions, $user, $data->transactions->description);
             DB::commit();
             return $this->sendResponse($result, 'Data Created', 201);
         } catch (\Exception $e) {
@@ -45,9 +45,11 @@ class CashTransactionController extends Controller
         }
     }
 
-    static function create($data, $user, $notes = '')
+    static function create($data, $saleId, $user, $notes = '')
     {
-        return CashTransaction::create([
+        return BankTransaction::create([
+            'bank_id' => $data->bank->id,
+            'sale_id' => $saleId,
             'amount' => $data->amount,
             'type' => $data->type,
             'description' => $notes,

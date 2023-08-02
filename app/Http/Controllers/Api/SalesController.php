@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Models\SaleDetail;
 use App\Models\Sales;
 use App\Helpers\InvoiceHelper;
+use App\Http\Controllers\API\BankTransactionController;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\API\CashTransactionController;
 use App\Http\Controllers\API\MutationController;
@@ -50,7 +51,7 @@ class SalesController extends BaseController
                 return $query->where('grand_total', '>=', $minTotal);
             })
             ->when($paymentStatus, function ($query, $paymentStatus) {
-                return $query->where('status', $paymentStatus);
+                return $query->where('payment_status', $paymentStatus);
             })
             ->when($deliveryStatus, function ($query, $deliveryStatus) {
                 return $query->where('shipping_type', $deliveryStatus);
@@ -77,10 +78,10 @@ class SalesController extends BaseController
         try {
             $customer = Customer::find($data->customerData->id);
             if (!$customer) {
-                $customer = CustomerController::create($data->customerData, $data->user);
+                $customer = CustomerController::create($data->customerData, $data->userData);
             }
             $sales = Sales::create([
-                'invoice' => InvoiceHelper::generateInvoiceNumber($data->user->branchId),
+                'invoice' => InvoiceHelper::generateInvoiceNumber($data->userData->branch_id),
                 'customer_id' => $customer->id,
                 'total' => $data->total->subTotal ?? 0,
                 'discount' => $data->total->discount ?? 0,
@@ -89,23 +90,30 @@ class SalesController extends BaseController
                 'shipping_cost' => $data->shipping->fee ?? 0, //ongkir
                 'etc_cost' => $data->total->etc ?? 0, //biaya lainnya
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
-                'grand_total' => $data->total->total ?? 0,
+                'grand_total' => $data->total->grandTotal ?? 0,
                 'credit' => $data->transaction->isCredit,
-                'status' => $data->transaction->isCredit ? 'BELUM LUNAS' : 'LUNAS',
-                'branch_id' => $data->user->branchId,
-                'created_by' => $data->user->id,
+                'payment_type' => $data->transaction->paymentType,
+                'payment_status' => $data->transaction->paymentStatus,
+                'branch_id' => $data->userData->branch_id,
+                'created_by' => $data->userData->id,
                 'created_at' => Carbon::today(),
             ]);
-            if ($data->transaction->isCash == true) {
-                $transactionNotes = 'UANG MASUK DARI TRANSAKSI INVOICE - #' . $sales->invoice;
-                CashTransactionController::create($data->transaction, $data->user, $transactionNotes);
+            if ($data->transaction->paymentType == 'CASH') {
+                $transactionNotes = 'Uang masuk transaksi Invoice - #' . $sales->invoice;
+                CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
+            } else if ($data->transaction->paymentType == 'TRANSFER') {
+                $transactionNotes = 'Pembayaran ke Bank ' . $data->transaction->bank->name . ' Invoice - #' . $sales->invoice;
+                BankTransactionController::create($data->transaction, $sales->id, $data->userData, $transactionNotes);
+            }
+
+            if ($data->shipping->type == 'DELIVERY') {
             }
 
             if ($data->transaction->isCredit == true) {
                 if ($data->credit->amount > 0) {
                     $transactionNotes = 'DOWN PAYEMENT UNTUK PIUTANG INVOICE - #' . $sales->invoice;
                     $data->transaction->amount = $data->credit->amount;
-                    CashTransactionController::create($data->transaction, $data->user, $transactionNotes);
+                    CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
                 }
                 PaymentController::create($data->credit, $sales->id);
                 $sales->credit = true;
@@ -130,7 +138,7 @@ class SalesController extends BaseController
 
                 $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
                 $link = '/sales/invoice/' . $sales->id;
-                $itemMutations[] = MutationController::create($value, $data->user, $notes, $link);
+                $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link);
                 $itemPrice[] = ItemPriceController::create($value);
             }
 
