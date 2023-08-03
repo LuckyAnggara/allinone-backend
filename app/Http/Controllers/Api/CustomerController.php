@@ -18,7 +18,6 @@ class CustomerController extends BaseController
         $perPage = $request->input('limit', 5);
         $name = $request->input('name', null);
         $branch = $request->input('branch');
-
         if ($name) {
             $query = Customer::with(['branch', 'maker'])
                 ->where('member', true)
@@ -67,7 +66,7 @@ class CustomerController extends BaseController
             'company' => $data->company ?? 0,
             'pic' => $data->pic ?? '',
             'created_by' => $user->id,
-            'branch_id' => $user->branchId,
+            'branch_id' => $user->branch->id,
         ]);
     }
 

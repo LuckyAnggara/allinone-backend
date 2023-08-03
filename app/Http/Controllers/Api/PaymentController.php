@@ -46,7 +46,7 @@ class PaymentController extends BaseController
 
             $dataSales = Sales::find($request->sale_id);
             if ($dataSales->remaining_credit <= 0) {
-                $dataSales->status = 'LUNAS';
+                $dataSales->payment_status = 'LUNAS';
                 $dataSales->save();
             }
             DB::commit();
@@ -94,9 +94,9 @@ class PaymentController extends BaseController
 
         $dataSales = Sales::find($paymentDetail->sale_id);
         if ($dataSales->remaining_credit > 0) {
-            $dataSales->status = 'BELUM LUNAS';
+            $dataSales->payment_status = 'BELUM LUNAS';
             $dataSales->save();
-        } 
+        }
         return $this->sendResponse($paymentDetail, 'Data fetched');
     }
 }

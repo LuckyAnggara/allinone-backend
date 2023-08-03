@@ -77,9 +77,11 @@ class SalesController extends BaseController
         $data = json_decode($request->getContent());
         DB::beginTransaction();
         try {
-            $customer = Customer::find($data->customerData->id);
-            if (!$customer) {
-                $customer = CustomerController::create($data->customerData, $data->userData);
+            if (!$data->customerData->withoutCustomer) {
+                $customer = Customer::find($data->customerData->id);
+                if (!$customer) {
+                    $customer = CustomerController::create($data->customerData, $data->userData);
+                }
             }
             $sales = Sales::create([
                 'invoice' => InvoiceHelper::generateInvoiceNumber($data->userData->branch_id),
@@ -92,31 +94,25 @@ class SalesController extends BaseController
                 'etc_cost' => $data->total->etc ?? 0, //biaya lainnya
                 'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
                 'grand_total' => $data->total->grandTotal ?? 0,
-                'credit' => $data->transaction->isCredit,
+                'credit' => $data->credit->isCredit,
                 'payment_type' => $data->transaction->paymentType,
                 'payment_status' => $data->transaction->paymentStatus,
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
                 'created_at' => Carbon::today(),
             ]);
-            
-            if ($data->transaction->paymentType == 'CASH') {
-                $transactionNotes = 'Uang masuk transaksi Invoice - #' . $sales->invoice;
-                CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
-            } else if ($data->transaction->paymentType == 'TRANSFER') {
-                $transactionNotes = 'Pembayaran ke Bank ' . $data->transaction->bank->name . ' Invoice - #' . $sales->invoice;
-                BankTransactionController::create($data->transaction, $sales->id, $data->userData, $transactionNotes);
-            }
 
-            if ($data->shipping->type == 'DELIVERY') {
-                ShippingDetailController::create($data->shipping, $sales->id);
-            }
-
-            if ($data->transaction->isCredit == true) {
+            // JIKA KREDIT
+            if ($data->credit->isCredit == true) {
                 if ($data->credit->amount > 0) {
-                    $transactionNotes = 'DOWN PAYEMENT UNTUK PIUTANG INVOICE - #' . $sales->invoice;
                     $data->transaction->amount = $data->credit->amount;
-                    CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
+                    if ($data->transaction->paymentType == 'CASH') {
+                        $transactionNotes = 'Uang masuk Down Payment Invoice - #' . $sales->invoice;
+                        CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
+                    } else if ($data->transaction->paymentType == 'TRANSFER') {
+                        $transactionNotes = 'Pembayaran ke Bank Down Payment' . $data->transaction->bank->name . ' Invoice - #' . $sales->invoice;
+                        BankTransactionController::create($data->transaction, $sales->id, $data->userData, $transactionNotes);
+                    }
                 }
                 PaymentController::create($data->credit, $sales->id);
                 $sales->credit = true;
@@ -125,6 +121,18 @@ class SalesController extends BaseController
                 $formattedDate = $carbon->format('Y-m-d');
                 $sales->due_date = $formattedDate;
                 $sales->save();
+            } else {
+                if ($data->transaction->paymentType == 'CASH') {
+                    $transactionNotes = 'Uang masuk transaksi Invoice - #' . $sales->invoice;
+                    CashTransactionController::create($data->transaction, $data->userData, $transactionNotes);
+                } else if ($data->transaction->paymentType == 'TRANSFER') {
+                    $transactionNotes = 'Pembayaran ke Bank ' . $data->transaction->bank->name . ' Invoice - #' . $sales->invoice;
+                    BankTransactionController::create($data->transaction, $sales->id, $data->userData, $transactionNotes);
+                }
+            }
+
+            if ($data->shipping->type == 'DELIVERY') {
+                ShippingDetailController::create($data->shipping, $sales->id);
             }
 
             $saleDetails = [];
@@ -157,7 +165,7 @@ class SalesController extends BaseController
     public function show($id)
     {
         $result = Sales::where('id', $id)
-            ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment','shipping'])
+            ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment', 'shipping'])
 
             ->first();
         if ($result) {
