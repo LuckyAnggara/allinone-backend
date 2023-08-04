@@ -24,18 +24,21 @@ class DatabaseSeeder extends Seeder
 
 
         \App\Models\Employee::factory(5)->create();
-        \App\Models\User::factory(2)->create();
-        \App\Models\Item::factory(8)->create();
+        // \App\Models\User::factory(2)->create();
+        \App\Models\Item::factory(100)->create();
         \App\Models\Branch::factory(5)->create();
 
         // \App\Models\User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
-                $this->call([
-                TaxSeeder::class,
-                BankSeeder::class,
-            ]);
+        $this->call([
+            TaxSeeder::class,
+            BankSeeder::class,
+            CategoriesSeeder::class,
+            UserSeeder::class,
+
+        ]);
 
 
         ItemUnit::create([

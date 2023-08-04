@@ -16,11 +16,14 @@ return new class extends Migration
         Schema::create('items', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('sku')->nullable();
+            $table->double('sku')->unique();
             $table->integer('unit_id')->nullable();
-            $table->integer('brand_id')->nullable();
+            $table->integer('category_id')->nullable();
+            $table->string('brand')->nullable();
             $table->double('balance')->default(0);
+            $table->double('qty_minimum')->default(0);
             // $table->double('beginning_stock')->default(0);
+            $table->string('description')->default(0);
             $table->integer('warehouse_id')->default(0);
             $table->string('rack')->nullable();
             $table->integer('created_by');

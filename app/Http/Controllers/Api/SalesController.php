@@ -77,12 +77,13 @@ class SalesController extends BaseController
         $data = json_decode($request->getContent());
         DB::beginTransaction();
         try {
+            $customer = Customer::find($data->customerData->id);
             if (!$data->customerData->withoutCustomer) {
-                $customer = Customer::find($data->customerData->id);
                 if (!$customer) {
                     $customer = CustomerController::create($data->customerData, $data->userData);
                 }
             }
+
             $sales = Sales::create([
                 'invoice' => InvoiceHelper::generateInvoiceNumber($data->userData->branch_id),
                 'customer_id' => $customer->id,

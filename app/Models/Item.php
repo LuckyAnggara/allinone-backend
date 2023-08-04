@@ -12,10 +12,14 @@ class Item extends Model
 
     protected $fillable = [
         'name',
+        'sku',
         'unit_id',
-        'brand_id',
+        'brand',
+        'category_id',
+        'description',
         'stock',
         'warehouse_id',
+        'qty_minimum',
         'rack',
         'created_by',
     ];
@@ -32,9 +36,9 @@ class Item extends Model
         return $this->hasOne(ItemUnit::class, 'id', 'unit_id')->withTrashed();
     }
 
-    public function brand()
+    public function category()
     {
-        return $this->hasOne(ItemBrand::class, 'id', 'brand_id')->withTrashed();
+        return $this->hasOne(ItemCategory::class, 'id', 'category_id')->withTrashed();
     }
 
     public function warehouse()

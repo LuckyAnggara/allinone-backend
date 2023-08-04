@@ -17,7 +17,7 @@ class ItemController extends BaseController
         $perPage = $request->input('limit', 5);
         $name = $request->input('name');
 
-        $items = Item::with(['brand', 'unit', 'maker', 'price'])
+        $items = Item::with(['category', 'unit', 'maker', 'price'])
             ->when($name, function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
             })
