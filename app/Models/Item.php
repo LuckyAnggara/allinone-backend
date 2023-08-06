@@ -14,17 +14,21 @@ class Item extends Model
         'name',
         'sku',
         'unit_id',
-        'brand',
         'category_id',
-        'description',
-        'stock',
-        'warehouse_id',
+        'brand',
+        'balance',
         'qty_minimum',
-        'rack',
+        'selling_price',
+        'buying_price',
+        'selling_tax_id',
+        'buying_tax_id',
+        'description',
+        'warehouse_id',
         'created_by',
+        'branch_id',
     ];
 
-    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance'];
+       protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance'];
 
     public function maker()
     {
@@ -53,7 +57,7 @@ class Item extends Model
 
     public function price()
     {
-        return $this->hasOne(ItemPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
+        return $this->hasOne(ItemSellingPrice::class, 'item_id', 'id')->ofMany('created_at', 'max');
     }
 
     public function beginning_balance()

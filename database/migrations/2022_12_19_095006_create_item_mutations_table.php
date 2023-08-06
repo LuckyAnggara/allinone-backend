@@ -18,6 +18,8 @@ return new class extends Migration
             $table->integer('item_id');
             $table->double('debit')->default(0);
             $table->double('credit')->default(0);
+            $table->double('debit_price')->default(0);
+            $table->double('credit_price')->default(0);
             $table->double('balance')->default(0);
             $table->text('notes')->nullable();
             $table->text('link')->nullable();

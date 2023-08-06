@@ -14,6 +14,7 @@ use App\Http\Controllers\API\ShippingDetailController;
 use App\Models\CashTransaction;
 use App\Models\Customer;
 use App\Models\ItemMutation;
+use App\Models\ItemSellingPrice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -151,7 +152,7 @@ class SalesController extends BaseController
                 $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
                 $link = '/sales/invoice/' . $sales->id;
                 $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link);
-                $itemPrice[] = ItemPriceController::create($value);
+                $itemPrice[] = ItemSellingPrice::create($value);
             }
 
             DB::commit();

@@ -22,11 +22,15 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->double('balance')->default(0);
             $table->double('qty_minimum')->default(0);
-            // $table->double('beginning_stock')->default(0);
+            $table->double('selling_price')->default(0);
+            $table->double('buying_price')->default(0);
+            $table->integer('selling_tax_id')->default(0);
+            $table->integer('buying_tax_id')->default(0);
             $table->string('description')->default(0);
             $table->integer('warehouse_id')->default(0);
             $table->string('rack')->nullable();
             $table->integer('created_by');
+            $table->integer('branch_id');
             $table->timestamps();
             $table->softDeletes();
         });

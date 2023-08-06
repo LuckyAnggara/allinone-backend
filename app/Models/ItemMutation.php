@@ -14,6 +14,8 @@ class ItemMutation extends Model
         'item_id',
         'debit',
         'credit',
+        'debit_price',
+        'credit_price',
         'balance',
         'notes',
         'link',
