@@ -18,6 +18,8 @@ class Item extends Model
         'brand',
         'balance',
         'qty_minimum',
+        'iSell',
+        'iBuy',
         'selling_price',
         'buying_price',
         'selling_tax_id',
@@ -25,10 +27,16 @@ class Item extends Model
         'description',
         'warehouse_id',
         'created_by',
+        'archive',
         'branch_id',
     ];
 
-       protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance'];
+    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance'];
+
+    protected $casts = [
+        'iSell' => 'boolean',
+        'iBuy' => 'boolean',
+    ];
 
     public function maker()
     {

@@ -101,7 +101,7 @@ class SalesController extends BaseController
                 'payment_status' => $data->transaction->paymentStatus,
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
-                'created_at' => Carbon::today(),
+                // 'created_at' => Carbon::today(),
             ]);
 
             // JIKA KREDIT

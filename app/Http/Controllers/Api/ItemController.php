@@ -28,14 +28,14 @@ class ItemController extends BaseController
             ->when($name, function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
             })
-             ->when($branch, function ($query, $branch) {
+            ->when($branch, function ($query, $branch) {
                 return $query->where('branch_id', 'like', '%' . $branch . '%');
             })
             ->when($minSellingPrice, function ($query, $minSellingPrice) {
-                return $query->where('selling_price', '>=', $minSellingPrice );
+                return $query->where('selling_price', '>=', $minSellingPrice);
             })
             ->when($minBuyingPrice, function ($query, $minBuyingPrice) {
-                return $query->where('buying_price', '>=', $minBuyingPrice );
+                return $query->where('buying_price', '>=', $minBuyingPrice);
             })
             ->when($minStock, function ($query, $minStock) {
                 return $query->where('balance', '>=', $minStock);
@@ -81,21 +81,23 @@ class ItemController extends BaseController
                 'brand' => $data->brand,
                 'balance' => $data->beginningStock->stock,
                 'qty_minimum' => $data->qty_minimum,
+                'iSell' => $data->iSell,
+                'iBuy' => $data->iBuy,
                 'selling_price' => $data->selling_price,
                 'buying_price' => $data->buying_price,
                 'selling_tax_id' => $data->selling_tax_id,
-                'buying_tax_id' =>$data->buying_tax_id,
+                'buying_tax_id' => $data->buying_tax_id,
                 'description' => $data->description,
                 'warehouse_id' => $data->warehouse_id,
                 'created_by' => $data->created_by,
-                'branch_id' =>$data->branch_id,
+                'branch_id' => $data->branch_id,
             ]);
 
-            if($data->beginningStock->value == true){
-                $notes = "Persediaan awal Product".$item->name;
+            if ($data->beginningStock->value == true) {
+                $notes = "Persediaan awal Product" . $item->name;
                 $item->stock = $data->beginningStock->stock;
                 $item->price = $data->beginningStock->price;
-                ItemBeginningStockController::create($data=$item, $notes = $notes);
+                ItemBeginningStockController::create($data = $item, $notes = $notes);
             }
             DB::commit();
             return $this->sendResponse($item, 'Product successfully created');
