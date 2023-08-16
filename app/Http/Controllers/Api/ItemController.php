@@ -24,7 +24,7 @@ class ItemController extends BaseController
         $unit = $request->input('unit');
         $category = $request->input('category');
 
-        $items = Item::with(['category', 'unit', 'maker',])
+        $items = Item::with(['category', 'unit', 'maker','buy_tax','sell_tax'])
             ->when($name, function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
             })

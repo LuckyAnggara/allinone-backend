@@ -14,4 +14,5 @@ class ItemSellingPrice extends Model
         'item_id',
         'price'
     ];
+    //  protected $table = 'item_selling_prices';
 }

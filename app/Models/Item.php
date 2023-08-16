@@ -58,6 +58,16 @@ class Item extends Model
         return $this->hasOne(Warehouse::class, 'id', 'warehouse_id')->withTrashed();
     }
 
+    public function buy_tax()
+    {
+        return $this->hasOne(TaxDetail::class, 'id', 'buying_tax_id')->withTrashed();
+    }
+
+    public function sell_tax()
+    {
+        return $this->hasOne(TaxDetail::class, 'id', 'selling_tax_id')->withTrashed();
+    }
+
     public function mutation()
     {
         return $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');

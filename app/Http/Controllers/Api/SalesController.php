@@ -149,10 +149,10 @@ class SalesController extends BaseController
                     'discount' => $value->disc
                 ]);
 
-                $notes = 'PENJUALAN TRANSAKSI INVOICE #' . $sales->invoice;
+                $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
                 $link = '/sales/invoice/' . $sales->id;
                 $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link);
-                $itemPrice[] = ItemSellingPrice::create($value);
+                $itemPrice[] = ItemSellingPriceController::create($value);
             }
 
             DB::commit();
