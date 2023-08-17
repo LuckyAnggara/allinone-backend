@@ -4,11 +4,13 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Enums\NotificationStatusEnum;
 use App\Models\Account;
 use App\Models\Customer;
 use App\Models\ItemBeginningStock;
 use App\Models\ItemBrand;
 use App\Models\ItemUnit;
+use App\Models\Notification;
 use App\Models\Warehouse;
 use Illuminate\Database\Seeder;
 
@@ -37,10 +39,10 @@ class DatabaseSeeder extends Seeder
             BankSeeder::class,
             CategoriesSeeder::class,
             UserSeeder::class,
-
+            NotificationSeeder::class,
         ]);
 
-
+      
         ItemUnit::create([
             'name' => 'Kilogram'
         ]);

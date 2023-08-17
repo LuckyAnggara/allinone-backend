@@ -27,9 +27,7 @@ class AccountController extends BaseController
     {
         $today = Carbon::now();
         $yesterday = Carbon::yesterday();
-
-
-
+        
         DB::beginTransaction();
         try {
             $data = [];

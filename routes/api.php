@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ItemCategoryController;
 use App\Http\Controllers\Api\ItemUnitController;
 use App\Http\Controllers\Api\ItemSellingPriceController;
 use App\Http\Controllers\API\MutationController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\API\ShippingDetailController;
 use App\Http\Controllers\Api\TaxController;
 use Illuminate\Http\Request;
@@ -45,6 +46,7 @@ Route::resource('banks', BankController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('sales', SalesController::class);
 Route::resource('payment', PaymentController::class);
+Route::resource('notification', NotificationController::class);
 Route::resource('account', AccountController::class);
 
 Route::get(
@@ -55,6 +57,10 @@ Route::get(
 Route::get(
     'price-contoh',
     [ItemPriceController::class, 'contoh']
+);
+Route::get(
+    '/notification/get-unread/{id}',
+    [NotificationController::class, 'getUnread']
 );
 
 Route::controller(AuthController::class)->group(function () {
