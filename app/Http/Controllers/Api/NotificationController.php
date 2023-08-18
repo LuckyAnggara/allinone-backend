@@ -32,6 +32,7 @@ class NotificationController extends BaseController
 
     static function create($data)
     {
+        $data = json_decode($data);
         $notification = Notification::create([
             'type' => $data->type,
             'message' =>  $data->message,
@@ -57,6 +58,4 @@ class NotificationController extends BaseController
             return $this->sendError($e->getMessage(), 'Error');
         }
     }
-
-    
 }
