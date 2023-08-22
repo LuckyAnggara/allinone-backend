@@ -34,10 +34,6 @@ class SalesController extends BaseController
         $deliveryStatus = $request->input('delivery-status');
         $credit = $request->input('credit');
 
-        // $result = Sales::where('credit', $credit)->get();
-        // return $result;
-
-
         $result = Sales::select('sales.*')
             ->join('customers', 'customers.id', '=', 'sales.customer_id')
             ->when($name, function ($query, $name) {
@@ -84,7 +80,6 @@ class SalesController extends BaseController
                     $customer = CustomerController::create($data->customerData, $data->userData);
                 }
             }
-
             $sales = Sales::create([
                 'invoice' => InvoiceHelper::generateInvoiceNumber($data->userData->branch_id),
                 'customer_id' => $customer->id,
@@ -99,6 +94,8 @@ class SalesController extends BaseController
                 'credit' => $data->credit->isCredit,
                 'payment_type' => $data->transaction->paymentType,
                 'payment_status' => $data->transaction->paymentStatus,
+                'global_tax' => $data->useGlobalTax,
+                'global_tax_id' => $data->tax->id,
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
                 // 'created_at' => Carbon::today(),
@@ -146,7 +143,8 @@ class SalesController extends BaseController
                     'item_id' => $value->id,
                     'qty' => $value->qty,
                     'price' => $value->price,
-                    'discount' => $value->disc
+                    'discount' => $value->disc,
+                    'tax' => $value->tax
                 ]);
 
                 $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
@@ -164,16 +162,21 @@ class SalesController extends BaseController
         }
     }
 
-    public function show($id)
+    public function show($uuid)
     {
-        $result = Sales::where('id', $id)
-            ->with(['customer', 'detail.item.unit', 'maker', 'branch', 'payment', 'shipping'])
-
+        $result = Sales::where('uuid', $uuid)
+            ->with(['customer', 'detail.item.unit','detail.item.sell_tax', 'maker', 'branch', 'payment', 'shipping','taxDetail'])
             ->first();
         if ($result) {
             return $this->sendResponse($result, 'Data fetched');
         }
         return $this->sendError('Data not found');
+    }
+
+    public function update($id)
+    {
+        $sales = Sales::find($id);
+           
     }
 
     public function destroy($id)

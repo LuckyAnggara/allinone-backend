@@ -15,7 +15,8 @@ class SaleDetail extends Model
         'item_id',
         'qty',
         'price',
-        'discount'
+        'discount',
+        'tax'
     ];
 
     public function item()

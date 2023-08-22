@@ -13,23 +13,27 @@ class Customer extends Model
 
     protected $fillable = [
         'name',
-        // 'type',
+        'uuid',
         'address',
+        'type',
         'phone_number',
         'member',
+        'email',
         'company',
+        'postalcode',
+        'urban',
+        'subdistrict',
+        'city',
         'pic',
         'created_by',
         'branch_id',
     ];
     protected $casts = [
         'member' => 'boolean',
-
+        'withoutCustomer'=> 'boolean'
     ];
 
-    protected $primaryKey = 'member_number';
-    public $incrementing = false;
-
+      protected $appends = ['withoutCustomer','existingCustomer'];
 
     protected static function boot()
     {
@@ -48,5 +52,21 @@ class Customer extends Model
     public function branch()
     {
         return $this->hasOne(Branch::class, 'id', 'branch_id');
+    }
+
+    public function getWithoutCustomerAttribute()
+    {
+        if($this->id == 1){
+            return true;
+        }
+        return false;
+    }
+
+    public function getExistingCustomerAttribute()
+    {
+        if($this->id !== 1){
+            return true;
+        }
+        return false;
     }
 }

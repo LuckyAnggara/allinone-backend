@@ -71,6 +71,10 @@ class CustomerController extends BaseController
                 'member' => true,
                 'company' => $data->company ?? 0,
                 'pic' => $data->pic ?? '',
+                'postalcode' => $data->postalcode ?? '',
+                'urban' => $data->urban ?? '',
+                'subdistrict' => $data->subdistrict ?? '',
+                'city' => $data->city ?? '',
                 'created_by' => $data->user->id,
                 'branch_id' => $data->user->branch->id,
             ]);
@@ -84,22 +88,7 @@ class CustomerController extends BaseController
 
     static function create($data, $user)
     {
-
         $member = false;
-        if ($data->saveCustomer) {
-            $member = true;
-            $notifData =  [
-                'type' => NotificationTypeEnum::Customer,
-                'message' =>  'Data customer baru a/n ' . $data->name . ' belum lengkap',
-                'link' =>  '/sales/1/invoice',
-                'user' =>  $user,
-                'status' =>  NotificationStatusEnum::Unread
-            ];
-
-            NotificationController::create(json_encode($notifData));
-        }
-        // DB::beginTransaction();
-        // try {
         $customer = Customer::create([
             'name' => $data->name,
             'type' => $data->type,
@@ -111,11 +100,23 @@ class CustomerController extends BaseController
             'created_by' => $user->id,
             'branch_id' => $user->branch->id,
         ]);
+
+        if ($customer) {
+            if($data->saveCustomer){
+                $customer->member = true;
+                $customer->save();
+                $notifData =  [
+                    'type' => NotificationTypeEnum::Customer,
+                    'message' =>  'Data customer baru a/n ' . $customer->name . ' belum lengkap',
+                    'link' =>  '/customer/detail/'.$customer->uuid,
+                    'user' =>  $user,
+                    'status' =>  NotificationStatusEnum::Unread
+                ];
+                NotificationController::create(json_encode($notifData));
+            }
+           
+        }
         return $customer;
-        // } catch (\Exception $e) {
-        //     DB::rollBack();
-        //     return $e->getMessage();
-        // }
     }
 
     public function show($uuid)
@@ -147,6 +148,24 @@ class CustomerController extends BaseController
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendError($e->getMessage(), 'Error');
+        }
+    }
+
+    public function destroy($id)
+    {
+        DB::beginTransaction();
+        try {
+            $customer = Customer::find($id);
+            if ($customer) {
+                $customer->delete();
+                DB::commit();
+                return $this->sendResponse($customer, 'Data berhasil dihapus', 200);
+            } else {
+                return $this->sendError('', 'Data tidak ditemukan', 404);
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError('Terjadi kesalahan', $e->getMessage(), 500);
         }
     }
 }

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('qty');
             $table->double('price');
             $table->double('discount');
+            $table->double('tax');
             $table->timestamps();
             $table->softDeletes();
         });

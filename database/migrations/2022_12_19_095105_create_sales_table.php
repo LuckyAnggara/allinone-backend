@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('sales', function (Blueprint $table) {
-            $table->id();
+            $table->bigIncrements('id');
+            $table->uuid('uuid')->unique()->index();
             $table->string('invoice');
             $table->integer('customer_id');
             $table->double('total')->default(0);
@@ -29,6 +30,8 @@ return new class extends Migration
             $table->double('remaining_credit')->default(0);
             $table->enum('payment_type', ['CASH', 'TRANSFER', 'QR CODE', 'DIGITAL PAYMENT']);
             $table->enum('payment_status', ['LUNAS', 'BELUM LUNAS']);
+            $table->boolean('global_tax')->default(false);
+            $table->integer('global_tax_id')->default(1);
             $table->date('due_date')->nullable();
             $table->integer('branch_id');
             $table->integer('created_by');

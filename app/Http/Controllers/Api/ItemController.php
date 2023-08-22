@@ -18,6 +18,7 @@ class ItemController extends BaseController
         $perPage = $request->input('limit', 5);
         $name = $request->input('name');
         $branch = $request->input('branch');
+        $type = $request->input('type');
         $minSellingPrice = $request->input('min-selling-price');
         $minBuyingPrice = $request->input('min-buying-price');
         $minStock = $request->input('min-stock');
@@ -27,6 +28,15 @@ class ItemController extends BaseController
         $items = Item::with(['category', 'unit', 'maker','buy_tax','sell_tax'])
             ->when($name, function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%');
+            })
+            ->when($type, function ($query, $type) {
+                if($type == 'sell'){
+                   return $query->where('iSell', true);
+                }else if($type=='buy'){
+                    return $query->where('iBuy', true);
+                }else{
+                    return $query;
+                }
             })
             ->when($branch, function ($query, $branch) {
                 return $query->where('branch_id', 'like', '%' . $branch . '%');

@@ -31,7 +31,7 @@ class Item extends Model
         'branch_id',
     ];
 
-    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance'];
+    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance','tax_status','can_tax','tax_value'];
 
     protected $casts = [
         'iSell' => 'boolean',
@@ -94,16 +94,35 @@ class Item extends Model
 
     public function getInStockAttribute()
     {
-        return $this->mutation->sum('debit');
+        $mutation = $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');
+        return $mutation->sum('debit');
     }
 
     public function getOutStockAttribute()
     {
-        return $this->mutation->sum('credit');
+        $mutation = $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');
+        return $mutation->sum('credit');
     }
 
     public function getEndingStockAttribute()
     {
-        return $this->beginning_balance->stock ?? 0 + $this->mutation->sum('debit') - $this->mutation->sum('credit');
+        $mutation = $this->hasMany(ItemMutation::class, 'item_id', 'id')->orderBy('created_at');
+        return $this->beginning_balance->stock ?? 0 + $mutation->sum('debit') - $mutation->sum('credit');
     }
+
+    public function getTaxStatusAttribute(){
+        return $this->selling_tax_id == 1 ? false : true;
+    }
+
+    public function getCanTaxAttribute(){
+        return $this->selling_tax_id== 1 ? false : true;
+    }
+    public function getTaxValueAttribute(){
+        return $this->sell_tax->value ?? 0;
+    }
+
+
+
+          
+
 }

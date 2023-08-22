@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('customers', function (Blueprint $table) {
-            $table->id();
-            $table->uuid('uuid')->unique();
+            $table->bigIncrements('id');
+            $table->uuid('uuid')->index();
             $table->string('name');
             $table->enum('type', ['personal', 'company'])->default('personal');
             $table->string('address')->nullable();
