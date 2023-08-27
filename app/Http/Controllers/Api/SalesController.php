@@ -15,6 +15,7 @@ use App\Models\CashTransaction;
 use App\Models\Customer;
 use App\Models\ItemMutation;
 use App\Models\ItemSellingPrice;
+use App\Models\PaymentDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -98,7 +99,6 @@ class SalesController extends BaseController
                 'global_tax_id' => $data->tax->id,
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
-                // 'created_at' => Carbon::today(),
             ]);
 
             // JIKA KREDIT
@@ -173,9 +173,80 @@ class SalesController extends BaseController
         return $this->sendError('Data not found');
     }
 
-    public function update($id)
+    public function update(Request $request, $id)
     {
-        $sales = Sales::find($id);
+        $data = json_decode($request->getContent());
+        DB::beginTransaction();
+        try {
+            $sales = Sales::find($id);
+            $sales->update([
+                'customer_id' => $data->customerData->id,
+                'total' => $data->total->subtotal ?? 0,
+                'discount' => $data->total->discount?? 0,
+                'tax' => $data->total->tax ?? 0, // pajak
+                'shipping_type' => $data->shipping->type ?? 'TAKE AWAY', // TIPE PENGIRIMAN
+                'shipping_cost' => $data->shipping->cost ?? 0, //ongkir
+                'etc_cost' => $data->total->etc ?? 0, //biaya lainnya
+                'etc_cost_desc' => $data->total->etc_desc ?? 0, // keterangan dari biaya lainnya
+                'grand_total' => $data->total->grandTotal ?? 0,
+                'credit' => $data->credit->isCredit,
+                'due_date' => $data->credit->due_date ??  null,
+                'payment_type' => $data->transaction->paymentType,
+                'payment_status' => $data->transaction->paymentStatus,
+                'global_tax' => $data->useGlobalTax,
+              'global_tax_id' => $data->tax->id,
+                'branch_id' => $data->userData->branch_id,
+                'created_by' => $data->userData->id,
+            ]);
+
+            if($data->editCreditPermission == true){
+                if ($sales->credit == 1){
+                    if ( $data->credit->isCredit == 0) {
+                        $sales->due_date = null;
+                        $paymentDetail = PaymentDetail::where('sale_id', $sales->id)->get();
+                        foreach ($paymentDetail as $key => $detail) {
+                        $detail->delete();
+                        }
+                     } 
+                }
+            }
+            if ($data->shipping->type == 'DELIVERY') {
+                    ShippingDetailController::create($data->shipping, $sales->id);
+                }           
+
+           if($data->editCartPermission == true){
+                $saleDetails = SaleDetail::where('sale_id', $sales->id)->get();
+                foreach ($saleDetails as $key => $detail) {
+                    $detail->penjualan = false;
+                    $notes = 'Ubah Transaksi #' . $sales->invoice;
+                    MutationController::create($detail, $data->userData, $notes, '');
+                    $detail->delete();
+                }
+                foreach ($data->currentCart as $value) {
+                    SaleDetail::create([
+                        'sale_id' => $sales->id,
+                        'item_id' => $value->id,
+                        'qty' => $value->qty,
+                        'price' => $value->price,
+                        'discount' => $value->discount,
+                        'tax' => $value->tax,
+                        'created_at' => $sales->created_at
+                ]);
+
+                $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
+                $link = '/sales/invoice/' . $sales->id;
+                $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link,$sales->created_at);
+                $itemPrice[] = ItemSellingPriceController::create($value,$sales->created_at);
+                }
+           }
+            $sales->save();
+            DB::commit();
+            return $this->sendResponse($sales, 'Data created', 202);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return $this->sendResponse($e->getMessage(), 'error', 404);
+        }
            
     }
 
@@ -190,7 +261,7 @@ class SalesController extends BaseController
                     $detail->id = $detail->item_id;
                     $detail->penjualan = false;
                     $user = new stdClass();
-                    $user->branchId = $sales->branch_id;
+                    $user->branch_id = $sales->branch_id;
                     $user->id = $sales->created_by;
                     $notes = 'Hapus Transaksi #' . $sales->invoice;
                     MutationController::create($detail, $user, $notes, '');

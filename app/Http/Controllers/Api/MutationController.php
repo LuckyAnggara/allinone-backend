@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Api\BaseController;
 use App\Models\ItemMutation;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -39,7 +40,7 @@ class MutationController extends BaseController
 
 
 
-    static function create($data, $user, $notes, $link)
+    static function create($data, $user, $notes, $link, $date=null)
     {
         $isPenjualan = $data->penjualan ?? true;
         $qty = $data->qty ?? 0;
@@ -60,6 +61,7 @@ class MutationController extends BaseController
             'link' => $link,
             'branch_id' => $branchId,
             'created_by' => $createdBy,
+            'created_at' => $date ?? Carbon::now()
         ]);
 
         return $itemMutation;

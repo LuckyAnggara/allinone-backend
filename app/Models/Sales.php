@@ -37,7 +37,7 @@ class Sales extends Model
     protected $casts = [
         'iSell' => 'boolean',
         'iBuy' => 'boolean',
-        'global_tax'=> 'boolean'
+        'global_tax'=> 'boolean',
     ];
 
     protected static function boot()
