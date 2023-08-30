@@ -16,6 +16,7 @@ use App\Http\Controllers\API\MutationController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\API\ShippingDetailController;
 use App\Http\Controllers\Api\TaxController;
+use App\Http\Controllers\Api\ReturItemSalesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -45,6 +46,7 @@ Route::resource('shipping-detail', ShippingDetailController::class);
 Route::resource('banks', BankController::class);
 Route::resource('customers', CustomerController::class);
 Route::resource('sales', SalesController::class);
+Route::resource('sales-retur', ReturItemSalesController::class);
 Route::resource('payment', PaymentController::class);
 Route::resource('notification', NotificationController::class);
 Route::resource('account', AccountController::class);
