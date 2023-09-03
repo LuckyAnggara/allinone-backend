@@ -167,6 +167,9 @@ class SalesController extends BaseController
         $result = Sales::where('uuid', $uuid)
             ->with(['customer', 'detail.item.unit','detail.item.sell_tax', 'maker', 'branch', 'payment', 'shipping','taxDetail'])
             ->first();
+            if($result->retur == 1){
+            $result->append('total_retur')->append('detail_retur');
+            }
         if ($result) {
             return $this->sendResponse($result, 'Data fetched');
         }

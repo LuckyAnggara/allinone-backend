@@ -94,7 +94,17 @@ class Sales extends Model
         return  0;
     }
 
+    public function getTotalReturAttribute()
+    {
+        $retur= $this->hasMany(ReturItemSales::class, 'sale_id', 'id');
+        return $retur->sum('grand_total');
+    }
 
+    public function getDetailReturAttribute()
+    {
+        return $this->hasMany(ReturItemSales::class, 'sale_id', 'id')->get();
+    }
+    
     public function branch()
     {
         return $this->hasOne(Branch::class, 'id', 'branch_id')->withTrashed();

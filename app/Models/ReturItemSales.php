@@ -11,19 +11,16 @@ class ReturItemSales extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = [
-        'sale_id',
-        'sale_detail_id',
-        'item_id',
-        'qty',
-        'price',
-        'type',
-        'notes',
-    ];
+    protected $fillable = ['sale_id', 'sale_detail_id', 'item_id', 'qty', 'price', 'tax', 'grand_total', 'type', 'notes'];
 
     protected $casts = [
-        'status' => ReturTypeEnum::class
+        'status' => ReturTypeEnum::class,
     ];
 
+    protected $appends = ['item'];
 
+    public function getItemAttribute()
+    {
+        return Item::find($this->item_id)->first();
+    }
 }
