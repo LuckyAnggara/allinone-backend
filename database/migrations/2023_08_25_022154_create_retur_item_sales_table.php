@@ -19,6 +19,9 @@ return new class extends Migration
             $table->integer('sale_detail_id');
             $table->integer('item_id');
             $table->double('qty');
+            $table->double('price');
+            $table->double('tax');
+            $table->double('grand_total');
             $table->string('type');
             $table->string('notes');
             $table->timestamps();

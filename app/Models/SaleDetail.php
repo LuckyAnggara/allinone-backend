@@ -19,6 +19,11 @@ class SaleDetail extends Model
         'tax'
     ];
 
+
+    protected $casts = [
+        'retur' => 'boolean',
+    ];
+
     public function item()
     {
         return $this->hasOne(Item::class, 'id', 'item_id')->withTrashed();

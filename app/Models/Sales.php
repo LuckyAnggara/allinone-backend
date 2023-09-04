@@ -30,6 +30,7 @@ class Sales extends Model
         'global_tax',
         'global_tax_id',
         'created_by',
+        'retur_at',
         'branch_id',
     ];
 
@@ -37,7 +38,7 @@ class Sales extends Model
     protected $casts = [
         'iSell' => 'boolean',
         'iBuy' => 'boolean',
-        'global_tax'=> 'boolean',
+        'global_tax' => 'boolean',
     ];
 
     protected static function boot()
@@ -61,7 +62,7 @@ class Sales extends Model
 
     public function shipping()
     {
-    return  $this->hasOne(ShippingDetail::class, 'sale_id', 'id')->withTrashed();
+        return  $this->hasOne(ShippingDetail::class, 'sale_id', 'id')->withTrashed();
     }
 
     public function detail()
@@ -80,7 +81,7 @@ class Sales extends Model
 
     public function getRemainingCreditAttribute()
     {
-        if($this->credit == true){
+        if ($this->credit == true) {
             return $this->grand_total - $this->payment->sum('payment');
         }
         return 0;
@@ -88,7 +89,7 @@ class Sales extends Model
 
     public function getTotalPaymentAttribute()
     {
-         if($this->credit == true){
+        if ($this->credit == true) {
             return  $this->payment->sum('payment');
         }
         return  0;
@@ -96,7 +97,7 @@ class Sales extends Model
 
     public function getTotalReturAttribute()
     {
-        $retur= $this->hasMany(ReturItemSales::class, 'sale_id', 'id');
+        $retur = $this->hasMany(ReturItemSales::class, 'sale_id', 'id');
         return $retur->sum('grand_total');
     }
 
@@ -104,7 +105,7 @@ class Sales extends Model
     {
         return $this->hasMany(ReturItemSales::class, 'sale_id', 'id')->get();
     }
-    
+
     public function branch()
     {
         return $this->hasOne(Branch::class, 'id', 'branch_id')->withTrashed();

@@ -21,6 +21,6 @@ class ReturItemSales extends Model
 
     public function getItemAttribute()
     {
-        return Item::find($this->item_id)->first();
+        return Item::where('id', $this->item_id)->first();
     }
 }

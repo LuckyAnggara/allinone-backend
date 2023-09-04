@@ -16,6 +16,7 @@ use App\Models\Customer;
 use App\Models\ItemMutation;
 use App\Models\ItemSellingPrice;
 use App\Models\PaymentDetail;
+use App\Models\ReturItemSales;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -165,11 +166,11 @@ class SalesController extends BaseController
     public function show($uuid)
     {
         $result = Sales::where('uuid', $uuid)
-            ->with(['customer', 'detail.item.unit','detail.item.sell_tax', 'maker', 'branch', 'payment', 'shipping','taxDetail'])
+            ->with(['customer', 'detail.item.unit', 'detail.item.sell_tax', 'maker', 'branch', 'payment', 'shipping', 'taxDetail'])
             ->first();
-            if($result->retur == 1){
+        if ($result->retur == 1) {
             $result->append('total_retur')->append('detail_retur');
-            }
+        }
         if ($result) {
             return $this->sendResponse($result, 'Data fetched');
         }
@@ -185,7 +186,7 @@ class SalesController extends BaseController
             $sales->update([
                 'customer_id' => $data->customerData->id,
                 'total' => $data->total->subtotal ?? 0,
-                'discount' => $data->total->discount?? 0,
+                'discount' => $data->total->discount ?? 0,
                 'tax' => $data->total->tax ?? 0, // pajak
                 'shipping_type' => $data->shipping->type ?? 'TAKE AWAY', // TIPE PENGIRIMAN
                 'shipping_cost' => $data->shipping->cost ?? 0, //ongkir
@@ -197,27 +198,27 @@ class SalesController extends BaseController
                 'payment_type' => $data->transaction->paymentType,
                 'payment_status' => $data->transaction->paymentStatus,
                 'global_tax' => $data->useGlobalTax,
-              'global_tax_id' => $data->tax->id,
+                'global_tax_id' => $data->tax->id,
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
             ]);
 
-            if($data->editCreditPermission == true){
-                if ($sales->credit == 1){
-                    if ( $data->credit->isCredit == 0) {
+            if ($data->editCreditPermission == true) {
+                if ($sales->credit == 1) {
+                    if ($data->credit->isCredit == 0) {
                         $sales->due_date = null;
                         $paymentDetail = PaymentDetail::where('sale_id', $sales->id)->get();
                         foreach ($paymentDetail as $key => $detail) {
-                        $detail->delete();
+                            $detail->delete();
                         }
-                     } 
+                    }
                 }
             }
             if ($data->shipping->type == 'DELIVERY') {
-                    ShippingDetailController::create($data->shipping, $sales->id);
-                }           
+                ShippingDetailController::create($data->shipping, $sales->id);
+            }
 
-           if($data->editCartPermission == true){
+            if ($data->editCartPermission == true) {
                 $saleDetails = SaleDetail::where('sale_id', $sales->id)->get();
                 foreach ($saleDetails as $key => $detail) {
                     $detail->penjualan = false;
@@ -234,14 +235,24 @@ class SalesController extends BaseController
                         'discount' => $value->discount,
                         'tax' => $value->tax,
                         'created_at' => $sales->created_at
-                ]);
+                    ]);
 
-                $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
-                $link = '/sales/invoice/' . $sales->id;
-                $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link,$sales->created_at);
-                $itemPrice[] = ItemSellingPriceController::create($value,$sales->created_at);
+                    $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
+                    $link = '/sales/invoice/' . $sales->id;
+                    $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link, $sales->created_at);
+                    $itemPrice[] = ItemSellingPriceController::create($value, $sales->created_at);
                 }
-           }
+            }
+
+            if ($data->editReturPermission == true) {
+                $returDetail = ReturItemSales::where('sale_id', $sales->id)->get();
+                foreach ($returDetail as $key => $detail) {
+                    $notes = 'Ubah Retur Product pada Transaksi #' . $sales->invoice;
+                    $itemMutations[] = MutationController::create($detail, $data->userData, $notes, '');
+                    $detail->delete();
+                }
+            }
+
             $sales->save();
             DB::commit();
             return $this->sendResponse($sales, 'Data created', 202);
@@ -250,7 +261,6 @@ class SalesController extends BaseController
 
             return $this->sendResponse($e->getMessage(), 'error', 404);
         }
-           
     }
 
     public function destroy($id)
