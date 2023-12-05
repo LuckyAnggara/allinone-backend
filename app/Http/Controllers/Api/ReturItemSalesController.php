@@ -24,7 +24,7 @@ class ReturItemSalesController extends BaseController
         try {
 
             $sales = Sales::where('uuid', $data->uuid)->first();
-            $sales->retur = true;
+            $sales->retur_status = true;
             $sales->retur_at = Carbon::now();
 
             $total = 0;
@@ -35,7 +35,7 @@ class ReturItemSalesController extends BaseController
                     $detail->retur = true;
                     $detail->save();
 
-                    $tax = $item->tax / $item->retur_qty;
+                    $tax = $item->tax / $detail->qty;
 
                     $retur = ReturItemSales::create([
                         'sale_id' => $sales->id,
