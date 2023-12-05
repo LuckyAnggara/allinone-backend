@@ -98,6 +98,8 @@ class SalesController extends BaseController
                 'payment_status' => $data->transaction->paymentStatus,
                 'global_tax' => $data->useGlobalTax,
                 'global_tax_id' => $data->tax->id,
+                'retur_status'=> $data->retur->returStatus,
+                'retur_at'=> $data->retur->returStatus == false ? '' : Carbon::now(),
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
             ]);
