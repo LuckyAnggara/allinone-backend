@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
     {
         User::create([
             'employee_id' => 1,
-            'username' => 'lucky',
+            'username' => 'demo',
             'password' => '$2y$10$SKX.kBjyiXwCnnEo2jMsD.aCIuKhS52PeLqsQc21N7Ix3MRZ8rB6O',
             'branch_id' => 1,
             'role_id' => 4,
