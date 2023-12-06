@@ -21,22 +21,18 @@ class ItemSellingPriceController extends BaseController
         return $this->sendResponse($data, 'Data fetched');
     }
 
-    static function create($data,$date=null)
+    static function create($data, $date = null)
     {
-        $item = ItemSellingPrice::where(function ($query) use ($data) {
-            $query->where('item_id', $data->id);
-            $query->where('price', $data->price);
-        })->get();
+        $item = ItemSellingPrice::where('item_id', $data->id)->where('price', $data->price)->get();
 
-        if (!isEmpty($item)) {
+        if ($item) {
             return true;
         }
-
 
         $result = ItemSellingPrice::create([
             'item_id' => $data->id,
             'price' => $data->price,
-             'created_at' => $date ?? Carbon::now()
+            'created_at' => $date ?? Carbon::now()
         ]);
 
         return $result;

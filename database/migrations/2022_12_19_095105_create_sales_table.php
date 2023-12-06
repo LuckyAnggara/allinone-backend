@@ -33,7 +33,7 @@ return new class extends Migration
             $table->boolean('global_tax')->default(false);
             $table->integer('global_tax_id')->default(1);
             $table->date('due_date')->nullable();
-            $table->boolean('retur')->default(false);
+            $table->boolean('retur_status')->default(false);
             $table->date('retur_at')->nullable();
             $table->integer('branch_id');
             $table->integer('created_by');

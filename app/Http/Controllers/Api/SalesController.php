@@ -98,8 +98,8 @@ class SalesController extends BaseController
                 'payment_status' => $data->transaction->paymentStatus,
                 'global_tax' => $data->useGlobalTax,
                 'global_tax_id' => $data->tax->id,
-                'retur_status'=> $data->retur->returStatus,
-                'retur_at'=> $data->retur->returStatus == false ? '' : Carbon::now(),
+                'retur_status' => $data->retur->returStatus,
+                'retur_at' => $data->retur->returStatus == false ? null : Carbon::now(),
                 'branch_id' => $data->userData->branch_id,
                 'created_by' => $data->userData->id,
             ]);
@@ -151,7 +151,7 @@ class SalesController extends BaseController
                 ]);
 
                 $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
-                $link = '/sales/invoice/' . $sales->id;
+                $link = "/sales/" . $sales->id . "/invoice/";
                 $itemMutations[] = MutationController::create($value, $data->userData, $notes, $link);
                 $itemPrice[] = ItemSellingPriceController::create($value);
             }
@@ -170,7 +170,7 @@ class SalesController extends BaseController
         $result = Sales::where('uuid', $uuid)
             ->with(['customer', 'detail.item.unit', 'detail.item.sell_tax', 'maker', 'branch', 'payment', 'shipping', 'taxDetail'])
             ->first();
-        if ($result->retur == 1) {
+        if ($result->retur_status == 1) {
             $result->append('total_retur')->append('detail_retur');
         }
         if ($result) {

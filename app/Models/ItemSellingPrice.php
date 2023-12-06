@@ -14,5 +14,10 @@ class ItemSellingPrice extends Model
         'item_id',
         'price'
     ];
+    protected $casts = [
+        'created_at' => 'datetime:d M Y',
+    ];
+
+
     //  protected $table = 'item_selling_prices';
 }

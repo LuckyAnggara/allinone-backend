@@ -30,6 +30,7 @@ class Sales extends Model
         'global_tax',
         'global_tax_id',
         'created_by',
+        'retur_status',
         'retur_at',
         'branch_id',
     ];
