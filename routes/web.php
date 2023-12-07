@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::get('/run-symlink', function () {
+    File::link(
+        storage_path('app/public'),
+        public_path('storage')
+    );
+    return 'Symlink Success';
 });

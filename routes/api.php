@@ -60,6 +60,18 @@ Route::get(
     'price-contoh',
     [ItemPriceController::class, 'contoh']
 );
+
+
+Route::post(
+    'item/upload-image',
+    [ItemController::class, 'imageUpload']
+);
+
+Route::get(
+    'item/show-image',
+    [ItemController::class, 'showImage']
+);
+
 Route::get(
     '/notification/get-unread/{id}',
     [NotificationController::class, 'getUnread']

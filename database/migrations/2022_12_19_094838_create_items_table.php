@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('description')->default(0);
             $table->integer('warehouse_id')->default(0);
             $table->string('rack')->nullable();
+            $table->string('image')->nullable();
             $table->boolean('archive')->default(false);
             $table->integer('created_by');
             $table->integer('branch_id');

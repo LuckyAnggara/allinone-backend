@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Item extends Model
 {
@@ -26,12 +27,13 @@ class Item extends Model
         'buying_tax_id',
         'description',
         'warehouse_id',
+        'image',
         'created_by',
         'archive',
         'branch_id',
     ];
 
-    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance','tax_status','can_tax','tax_value'];
+    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance', 'tax_status', 'can_tax', 'tax_value', 'show_image'];
 
     protected $casts = [
         'iSell' => 'boolean',
@@ -110,19 +112,22 @@ class Item extends Model
         return $this->beginning_balance->stock ?? 0 + $mutation->sum('debit') - $mutation->sum('credit');
     }
 
-    public function getTaxStatusAttribute(){
+    public function getTaxStatusAttribute()
+    {
         return $this->selling_tax_id == 1 ? false : true;
     }
 
-    public function getCanTaxAttribute(){
-        return $this->selling_tax_id== 1 ? false : true;
+    public function getCanTaxAttribute()
+    {
+        return $this->selling_tax_id == 1 ? false : true;
     }
-    public function getTaxValueAttribute(){
+    public function getTaxValueAttribute()
+    {
         return $this->sell_tax->value ?? 0;
     }
-
-
-
-          
-
+    public function getShowImageAttribute()
+    {
+        if ($this->image == null) return Storage::url('dummy/product.png');
+        return (Storage::url($this->image));
+    }
 }
