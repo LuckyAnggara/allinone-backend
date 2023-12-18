@@ -17,7 +17,7 @@ class ItemFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word(),
+            'name' => $this->faker->firstName(),
             'sku' => $this->faker->ean13(),
             'category_id' => $this->faker->numberBetween(1, 3),
             'brand' => $this->faker->word(),

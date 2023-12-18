@@ -32,34 +32,42 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Route::resource('items', ItemController::class);
+    Route::resource('sales', SalesController::class);
+    Route::resource('item-mutation', MutationController::class);
+    Route::resource('items', ItemController::class);
+    Route::resource('item-brands', ItemBrandController::class);
+    Route::resource('item-categories', ItemCategoryController::class);
+    Route::resource('item-units', ItemUnitController::class);
+    Route::resource('item-selling-prices', ItemSellingPriceController::class);
 });
 Route::resource('version', VersionController::class);
-Route::resource('items', ItemController::class);
-Route::resource('item-brands', ItemBrandController::class);
-Route::resource('item-categories', ItemCategoryController::class);
-Route::resource('item-units', ItemUnitController::class);
-Route::resource('item-mutation', MutationController::class);
-Route::resource('item-selling-prices', ItemSellingPriceController::class);
+
 Route::resource('tax-detail', TaxController::class);
 Route::resource('shipping-detail', ShippingDetailController::class);
 Route::resource('banks', BankController::class);
 Route::resource('customers', CustomerController::class);
-Route::resource('sales', SalesController::class);
 Route::resource('sales-retur', ReturItemSalesController::class);
 Route::resource('payment', PaymentController::class);
 Route::resource('notification', NotificationController::class);
 Route::resource('account', AccountController::class);
 
-Route::get(
-    'account-generate',
-    [AccountController::class, 'generate']
-);
 
 Route::get(
     'price-contoh',
     [ItemPriceController::class, 'contoh']
 );
+
+
+Route::post(
+    'item/upload-image',
+    [ItemController::class, 'imageUpload']
+);
+
+Route::get(
+    'item/show-image',
+    [ItemController::class, 'showImage']
+);
+
 Route::get(
     '/notification/get-unread/{id}',
     [NotificationController::class, 'getUnread']

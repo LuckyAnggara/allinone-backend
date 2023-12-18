@@ -11,7 +11,7 @@ class Purchase extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'invoice',
+        'faktur',
         'supplier_id',
         'total',
         'discount',

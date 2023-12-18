@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->uuid('uuid')->unique()->index();
-            $table->string('invoice');
+            $table->string('faktur');
             $table->integer('customer_id');
             $table->double('total')->default(0);
             $table->double('discount')->default(0);

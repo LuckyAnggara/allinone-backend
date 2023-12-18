@@ -6,7 +6,10 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\ItemBeginningStock;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use stdClass;
 
@@ -25,16 +28,16 @@ class ItemController extends BaseController
         $unit = $request->input('unit');
         $category = $request->input('category');
 
-        $items = Item::with(['category', 'unit', 'maker','buy_tax','sell_tax'])
+        $items = Item::with(['category', 'unit', 'maker', 'buy_tax', 'sell_tax'])
             ->when($name, function ($query, $name) {
-                return $query->where('name', 'like', '%' . $name . '%');
+                return $query->where('name', 'like', '%' . $name . '%')->orWhere('sku', 'like', '%' . $name . '%');
             })
             ->when($type, function ($query, $type) {
-                if($type == 'sell'){
-                   return $query->where('iSell', true);
-                }else if($type=='buy'){
+                if ($type == 'sell') {
+                    return $query->where('iSell', true);
+                } else if ($type == 'buy') {
                     return $query->where('iBuy', true);
-                }else{
+                } else {
                     return $query;
                 }
             })
@@ -61,7 +64,6 @@ class ItemController extends BaseController
 
         return $this->sendResponse($items, 'Data fetched');
     }
-
 
     public function show($sku)
     {
@@ -99,8 +101,8 @@ class ItemController extends BaseController
                 'buying_tax_id' => $data->buying_tax_id,
                 'description' => $data->description,
                 'warehouse_id' => $data->warehouse_id,
-                'created_by' => $data->created_by,
-                'branch_id' => $data->branch_id,
+                'created_by' => Auth::id(),
+                'branch_id' => Auth::user()->branch_id,
             ]);
 
             if ($data->beginningStock->value == true) {
@@ -154,5 +156,36 @@ class ItemController extends BaseController
             DB::rollBack();
             return $this->sendError('Terjadi kesalahan', $e->getMessage(), 500);
         }
+    }
+
+    public function imageUpload(Request $request)
+    {
+        $data = json_decode($request->getContent());
+        try {
+            DB::beginTransaction();
+            $item = Item::findOrFail($request->id);
+            if ($request->file()) {
+                $file_name = time() . '_' . $request->file('file')->getClientOriginalName();
+
+                if ($item) {
+                    $file_path = $request->file('file')->store('products', 'public');
+                }
+                $item->image = $file_path;
+                $item->save();
+            }
+            DB::commit();
+            return $this->sendResponse((Storage::url($item->image)), 'Upload Image Berhasil');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $this->sendError($e->getMessage(), 'Failed to saved data');
+        }
+    }
+
+    public function showImage(Request $request)
+    {
+        $data = json_decode($request->getContent());
+        $item = Item::findOrFail(1);
+
+        return (Storage::url($item->image));
     }
 }

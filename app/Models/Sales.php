@@ -12,7 +12,7 @@ class Sales extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'invoice',
+        'faktur',
         'customer_id',
         'total',
         'discount',

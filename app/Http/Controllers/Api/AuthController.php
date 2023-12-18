@@ -74,7 +74,7 @@ class AuthController extends BaseController
         // Get access token from database
         $token = PersonalAccessToken::findToken($accessToken);
         if($token){
-            // Revoke token
+            Auth::logout();
             $token->delete();
             return $this->sendResponse('done', 'User logout successfully.');
         }

@@ -3,24 +3,28 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Api\BaseController;
+use App\Models\Item;
 use App\Models\ItemMutation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class MutationController extends BaseController
 {
-
     public function index(Request $request)
     {
         $perPage = $request->input('limit', 5);
-        $id = $request->input('id');
+        $sku = $request->input('id');
 
-        $result = ItemMutation::where('item_id', $id)->latest()
-            ->paginate($perPage);
-
-        if ($result) {
-            return $this->sendResponse($result, 'Data fetched');
+        $item = Item::where('sku', $sku)->first();
+        if ($item) {
+            $result = ItemMutation::where('item_id', $item->id)
+                ->latest('id')
+                ->paginate($perPage);
+            if ($result) {
+                return $this->sendResponse($result, 'Data fetched');
+            }
         }
         return $this->sendError('Data not found');
     }
@@ -38,30 +42,65 @@ class MutationController extends BaseController
         }
     }
 
-
-
-    static function create($data, $user, $notes, $link, $date=null)
+    static function createFromSalesNew($value, $sales)
     {
-        $isPenjualan = $data->penjualan ?? true;
-        $qty = $data->qty ?? 0;
+        $notes = 'penjualan faktur #' . $sales->faktur;
+        $link = '/sales/' . $sales->uuid . '/detail/';
 
-        $debit = !$isPenjualan ? $qty : 0;
-        $credit = !$isPenjualan ? 0 : $qty;
+        $isDebit = $value->debit ?? true;
+        $qty = $value->qty ?? 0;
 
-        $notes = $notes ?? 'tidak ada keterangan';
-        $branchId = $user->branch_id;
-        $createdBy = $user->id;
+        $debit = $isDebit ? $qty : 0;
+        $credit = !$isDebit ? 0 : $qty;
+
+        $lastBalance =
+            ItemMutation::where('id', $value->id)
+                ->latest('created_at')
+                ->first()->balance ?? 0;
+        $balance = $lastBalance + (!$isDebit ? +$qty : -$qty);
 
         $itemMutation = ItemMutation::create([
-            'item_id' => $data->id,
+            'item_id' => $value->id,
             'debit' => $debit,
             'credit' => $credit,
-            'balance' => 0,
+            'balance' => $balance,
             'notes' => $notes,
             'link' => $link,
-            'branch_id' => $branchId,
-            'created_by' => $createdBy,
-            'created_at' => $date ?? Carbon::now()
+            'branch_id' =>  Auth::user()->branch_id,
+            'created_by' => Auth::id(),
+            'created_at' => $date ?? Carbon::now(),
+        ]);
+
+        return $itemMutation;
+    }
+
+    static function createFromSalesEdit($value, $sales)
+    {
+        $notes = 'ubah transaksi #' . $sales->faktur;
+        $link = '/sales/' . $sales->uuid . '/detail/';
+
+        $isDebit = $value->debit ?? true;
+        $qty = $value->qty ?? 0;
+
+        $debit = !$isDebit ? $qty : 0;
+        $credit = !$isDebit  ? 0 : $qty;
+
+        $lastBalance =
+            ItemMutation::where('id', $value->item_id)
+                ->latest('created_at')
+                ->first()->balance ?? 0;
+        $balance = $lastBalance + (!$isDebit ? +$qty : -$qty);
+
+        $itemMutation = ItemMutation::create([
+            'item_id' => $value->item_id,
+            'debit' => $debit,
+            'credit' => $credit,
+            'balance' => $balance,
+            'notes' => $notes,
+            'link' => $link,
+            'branch_id' =>  Auth::user()->branch_id,
+            'created_by' => Auth::id(),
+            'created_at' => $date ?? Carbon::now(),
         ]);
 
         return $itemMutation;

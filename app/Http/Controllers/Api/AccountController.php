@@ -11,7 +11,7 @@ use App\Models\ItemBeginningStock;
 use App\Models\Sales;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
-
+use Illuminate\Support\Facades\Auth;
 
 class AccountController extends BaseController
 {
@@ -25,6 +25,9 @@ class AccountController extends BaseController
 
     public function generate()
     {
+
+ 
+        
         $today = Carbon::now();
         $yesterday = Carbon::yesterday();
         
