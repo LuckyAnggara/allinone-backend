@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('item_units', function (Blueprint $table) {
             $table->id();
-            // $table->string('item_id');
             $table->string('name');
-            // $table->string('quantity');
             $table->String('abbreviation')->nullable();
+            $table->integer('created_by');
+            $table->integer('branch_id');
             $table->timestamps();
             $table->softDeletes();
         });

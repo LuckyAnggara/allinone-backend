@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CashTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CashTransactionController extends Controller
@@ -45,14 +46,14 @@ class CashTransactionController extends Controller
         }
     }
 
-    static function create($data, $user, $notes = '')
+    static function create($data, $notes = '')
     {
         return CashTransaction::create([
             'amount' => $data->amount,
             'type' => $data->type,
             'description' => $notes,
-            'user_id' => $user->id,
-            'branch_id' => $user->branch_id,
+            'user_id' => Auth::user()->id,
+            'branch_id' => Auth::user()->branch_id,
         ]);
     }
 }

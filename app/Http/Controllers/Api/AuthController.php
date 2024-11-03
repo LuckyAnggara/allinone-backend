@@ -47,38 +47,59 @@ class AuthController extends BaseController
      */
     public function login(Request $request)
     {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
 
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
-            $user = Auth::user();
-            // if (count($user->tokens) >= 1) {
-            //     return $this->sendResponse('user still login', 'User still Login.', 202);
-            // } else {
-                $user->tokens()->delete();
-                $userId =  Auth::id();
-                $success['token']['access_token'] =  $user->createToken('MyApp')->plainTextToken;
-                $success['token']['token_type'] = 'Bearer';
-                // $success['user'] =  $userId;
-                $success['user'] = User::where('id',$userId)->with(['employee','role','branch'])->first();
-                return $this->sendResponse($success, 'User login successfully.');
-            // }
-        } else {
-            return $this->sendError('User / Password wrong', ['error' => 'Wrong User or Password']);
+        $user = User::with(['employee','role','branch'])->where('username', $request->username)->first();
+
+        $credentials = request(['username', 'password']);
+        if (!Auth::attempt($credentials)) {
+            return response([
+                'success'   => false,
+                'message' => ['These credentials do not match our records.']
+            ], 404);
         }
+
+        $token = $user->createToken('Api-token')->plainTextToken;
+
+        $response = [
+            'success'   => true,
+            'user'      => $user,
+            'token'     => $token,
+            'message'   => 'Berhasil Login'
+        ];
+        return response($response, 201);
     }
 
 
+    // public function logout(Request $request)
+    // {
+    //     // Get bearer token from the request
+    //     $accessToken = $request->bearerToken();
+    //     // Get access token from database
+    //     $token = PersonalAccessToken::findToken($accessToken);
+    //     if($token){
+    //         // Revoke token
+    //         $token->delete();
+    //         return $this->sendResponse('done', 'User logout successfully.');
+    //     }
+    //     return $this->sendResponse('error','token not found');
+
+    // }
+
     public function logout(Request $request)
     {
-        // Get bearer token from the request
-        $accessToken = $request->bearerToken();
-        // Get access token from database
-        $token = PersonalAccessToken::findToken($accessToken);
-        if($token){
-            // Revoke token
-            $token->delete();
-            return $this->sendResponse('done', 'User logout successfully.');
-        }
-        return $this->sendResponse('error','token not found');
+        Auth::user()->tokens()->delete();
+        return [
+            'success'   => true,
+            'message' => 'User logged out'
+        ];
+    }
 
+    public function user(Request $request)
+    {
+        return Auth::user();
     }
 }

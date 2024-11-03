@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->string('phone_number')->nullable();
             $table->integer('pic_id');
+            $table->integer('created_by');
+            $table->integer('branch_id');
             $table->timestamps();
             $table->softDeletes();
         });

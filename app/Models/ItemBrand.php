@@ -12,6 +12,8 @@ class ItemBrand extends Model
 
     protected $fillable = [
         'name',
+       'created_by',
+        'branch_id',
     ];
 
 }

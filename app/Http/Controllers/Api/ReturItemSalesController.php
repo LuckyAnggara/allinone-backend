@@ -48,12 +48,14 @@ class ReturItemSalesController extends BaseController
                         'type' => $item->type,
                         'notes' => $item->notes,
                     ]);
+
+    
                     $total = $total + $retur->grand_total;
                 }
             }
             $sales->save();
             DB::commit();
-            return $this->sendResponse($total, 'Data created', 202);
+            return $this->sendResponse($retur, 'Data created', 202);
         } catch (\Exception $e) {
 
             DB::rollBack();

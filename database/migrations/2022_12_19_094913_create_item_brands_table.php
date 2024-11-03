@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('item_brands', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->integer('created_by');
+            $table->integer('branch_id');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -21,22 +21,26 @@ class CategoriesSeeder extends Seeder
             [
                 'name' => 'Uncategorized',
                 'description' => 'Tidak memiliki kategori',
-                'branch_id' => 1
+                'branch_id' => 1,
+                'created_by' => 1,
             ],
             [
                 'name' => 'Elektronik',
                 'description' => 'Kategori produk elektronik',
-                'branch_id' => 1
+                'branch_id' => 1,
+                'created_by' => 1,
             ],
             [
                 'name' => 'Fashion',
                 'description' => 'Kategori produk fashion',
-                'branch_id' => 1
+                'branch_id' => 1,
+                'created_by' => 1,
             ],
             [
                 'name' => 'Otomotif',
                 'description' => 'Kategori produk otomotif',
-                'branch_id' => 1
+                'branch_id' => 1,
+                'created_by' => 1,
             ],
             // Tambahkan data kategori lain sesuai kebutuhan
         ];

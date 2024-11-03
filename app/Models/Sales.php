@@ -83,7 +83,7 @@ class Sales extends Model
     public function getRemainingCreditAttribute()
     {
         if ($this->credit == true) {
-            return $this->grand_total - $this->payment->sum('payment');
+            return $this->grand_total - $this->payment->sum('amount');
         }
         return 0;
     }
@@ -91,7 +91,7 @@ class Sales extends Model
     public function getTotalPaymentAttribute()
     {
         if ($this->credit == true) {
-            return  $this->payment->sum('payment');
+            return  $this->payment->sum('amount');
         }
         return  0;
     }

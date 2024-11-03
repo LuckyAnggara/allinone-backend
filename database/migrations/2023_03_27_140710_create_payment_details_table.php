@@ -16,7 +16,9 @@ return new class extends Migration
         Schema::create('payment_details', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('sale_id');
-            $table->decimal('payment', 10, 2)->default(0);
+            $table->string('payment_type')->default('CASH');
+            $table->integer('bank_id')->nullable();
+            $table->decimal('amount', 10, 2)->default(0);
             $table->text('notes')->nullable();
             $table->timestamps();
             $table->softDeletes();

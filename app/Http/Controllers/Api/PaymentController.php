@@ -37,18 +37,20 @@ class PaymentController extends BaseController
 
             $validated = $request->validate([
                 'sale_id' => 'required',
-                'payment' => 'required|numeric',
+                'amount' => 'required|numeric',
                 'notes' => 'nullable|string',
                 'created_at' => 'nullable|date',
             ]);
 
             $accountReceivable = PaymentDetail::create($validated);
 
-            $dataSales = Sales::find($request->sale_id);
-            if ($dataSales->remaining_credit <= 0) {
-                $dataSales->payment_status = 'LUNAS';
-                $dataSales->save();
+            $sales = Sales::find($request->sale_id);
+            if ($sales->remaining_credit <= 0) {
+                $sales->payment_status = 'LUNAS';
+                $sales->save();
+
             }
+
             DB::commit();
             return $this->sendResponse($accountReceivable, 'Data created', 201);
         } catch (\Exception $e) {
@@ -62,7 +64,7 @@ class PaymentController extends BaseController
         PaymentDetail::create([
             'sale_id' => $id,
             'notes' => $data->notes,
-            'payment' => $data->amount,
+            'amount' => $data->amount,
         ]);
     }
 
@@ -76,7 +78,7 @@ class PaymentController extends BaseController
     {
         $validated = $request->validate([
             'sale_id' => 'required',
-            'payment' => 'required|numeric',
+            'amount' => 'required|numeric',
             'note' => 'nullable|string',
             'created_at' => 'nullable|date',
         ]);

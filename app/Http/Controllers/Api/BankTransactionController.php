@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BankTransaction;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class BankTransactionController extends Controller
@@ -33,10 +34,9 @@ class BankTransactionController extends Controller
     {
         $data = json_decode($request->getContent());
         $transactions = $data->transactions;
-        $user = $data->user;
         try {
             DB::beginTransaction();
-            $result = BankTransaction::create($transactions, $user, $data->transactions->description);
+            $result = BankTransaction::create($transactions, $data->transactions->description);
             DB::commit();
             return $this->sendResponse($result, 'Data Created', 201);
         } catch (\Exception $e) {
@@ -45,7 +45,7 @@ class BankTransactionController extends Controller
         }
     }
 
-    static function create($data, $saleId, $user, $notes = '')
+    static function create($data, $saleId, $notes = '')
     {
         return BankTransaction::create([
             'bank_id' => $data->bank->id,
@@ -53,8 +53,8 @@ class BankTransactionController extends Controller
             'amount' => $data->amount,
             'type' => $data->type,
             'description' => $notes,
-            'user_id' => $user->id,
-            'branch_id' => $user->branch_id,
+            'user_id' =>  Auth::user()->id,
+            'branch_id' =>  Auth::user()->branch_id,
         ]);
     }
 }

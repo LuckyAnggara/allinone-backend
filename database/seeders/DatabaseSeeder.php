@@ -44,49 +44,85 @@ class DatabaseSeeder extends Seeder
 
       
         ItemUnit::create([
-            'name' => 'Kilogram'
+            'name' => 'Kilogram',
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Meter'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Centimeter'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Gram'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Ton'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Buah'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Lembar'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Roll'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemUnit::create([
             'name' => 'Sack'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
 
 
         ItemBrand::create([
             'name' => 'BBM Trust'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         ItemBrand::create([
             'name' => 'BBM'
+            ,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         Warehouse::create([
             'name' => 'Pusat',
             'address' => 'Jl Raya Limbangan 1',
-            'pic_id' => 6
+            'pic_id' => 6,
+            'branch_id' => 1,
+                'created_by' => 1,
         ]);
         Warehouse::create([
             'name' => 'Pabrik',
             'address' => 'Jl Raya Limbangan 2',
-            'pic_id' => 7
+            'pic_id' => 7,
+            'branch_id' => 1,
+            'created_by' => 1,
         ]);
 
         ItemBeginningStock::create([

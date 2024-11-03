@@ -12,7 +12,9 @@ class ItemUnit extends Model
 
     protected $fillable = [
         'name',
-        'abbreviation'
+        'abbreviation',
+        'branch_id',
+        'created_by'
     ];
 
 }

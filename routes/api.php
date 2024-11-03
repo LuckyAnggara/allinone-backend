@@ -30,24 +30,30 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/register', [AuthController::class, 'register'])->name('register');
+    Route::resource('item-mutation', MutationController::class);
+
 
 Route::middleware('auth:sanctum')->group(function () {
-    // Route::resource('items', ItemController::class);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/auth/user', [AuthController::class, 'user'])->name('user');
+    Route::resource('items', ItemController::class);
+    Route::resource('item-brands', ItemBrandController::class);
+    Route::resource('item-categories', ItemCategoryController::class);
+    Route::resource('item-units', ItemUnitController::class);
+    Route::resource('item-selling-prices', ItemSellingPriceController::class);
+    Route::resource('sales', SalesController::class);
+Route::resource('banks', BankController::class);
+
 });
+
 Route::resource('version', VersionController::class);
-Route::resource('items', ItemController::class);
-Route::resource('item-brands', ItemBrandController::class);
-Route::resource('item-categories', ItemCategoryController::class);
-Route::resource('item-units', ItemUnitController::class);
-Route::resource('item-mutation', MutationController::class);
-Route::resource('item-selling-prices', ItemSellingPriceController::class);
 Route::resource('tax-detail', TaxController::class);
 Route::resource('shipping-detail', ShippingDetailController::class);
-Route::resource('banks', BankController::class);
 Route::resource('customers', CustomerController::class);
-Route::resource('sales', SalesController::class);
 Route::resource('sales-retur', ReturItemSalesController::class);
-Route::resource('payment', PaymentController::class);
+Route::resource('sales-credit-payment', PaymentController::class);
 Route::resource('notification', NotificationController::class);
 Route::resource('account', AccountController::class);
 
@@ -77,8 +83,3 @@ Route::get(
     [NotificationController::class, 'getUnread']
 );
 
-Route::controller(AuthController::class)->group(function () {
-    Route::post('register', 'register');
-    Route::post('login', 'login');
-    Route::get('logout', 'logout');
-});

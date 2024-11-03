@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\ItemBrand;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ItemBrandController extends BaseController
@@ -12,7 +13,7 @@ class ItemBrandController extends BaseController
     public function index(Request $request)
     {
         $name = $request->input('name');
-        $items = ItemBrand::when($name, function ($query, $name) {
+        $items = ItemBrand::where('branch_id', Auth::user()->branch_id)->when($name, function ($query, $name) {
             return $query->where('name', 'like', '%' . $name . '%');
         })
             ->latest()
@@ -30,7 +31,12 @@ class ItemBrandController extends BaseController
                 'name' => 'required',
             ]);
 
-            $brand = ItemBrand::create($validatedData);
+            $brand = ItemBrand::create([
+                'name' => $request->name,
+                'description' =>  $request->description,
+                'created_by' => Auth::user()->id,
+                'branch_id' => Auth::user()->branch_id,
+            ]);
             DB::commit();
             return $this->sendResponse($brand, 'Data created successfully');
         } catch (\Exception $e) {

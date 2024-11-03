@@ -14,5 +14,6 @@ class ItemCategory extends Model
         'name',
         'description',
         'branch_id',
+               'created_by',
     ];
 }

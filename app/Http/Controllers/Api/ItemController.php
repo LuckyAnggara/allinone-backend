@@ -6,6 +6,7 @@ use App\Models\Item;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\ItemBeginningStock;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -19,15 +20,14 @@ class ItemController extends BaseController
     {
         $perPage = $request->input('limit', 5);
         $name = $request->input('name');
-        $branch = $request->input('branch');
         $type = $request->input('type');
         $minSellingPrice = $request->input('min-selling-price');
         $minBuyingPrice = $request->input('min-buying-price');
         $minStock = $request->input('min-stock');
-        $unit = $request->input('unit');
         $category = $request->input('category');
 
-        $items = Item::with(['category', 'unit', 'maker', 'buy_tax', 'sell_tax'])
+        $user = Auth::user();
+        $items = Item::where('branch_id', $user->branch_id)->with(['category', 'unit', 'maker', 'buy_tax', 'sell_tax'])
             ->when($name, function ($query, $name) {
                 return $query->where('name', 'like', '%' . $name . '%')->orWhere('sku', 'like', '%' . $name . '%');
             })
@@ -40,9 +40,6 @@ class ItemController extends BaseController
                     return $query;
                 }
             })
-            ->when($branch, function ($query, $branch) {
-                return $query->where('branch_id', 'like', '%' . $branch . '%');
-            })
             ->when($minSellingPrice, function ($query, $minSellingPrice) {
                 return $query->where('selling_price', '>=', $minSellingPrice);
             })
@@ -51,9 +48,6 @@ class ItemController extends BaseController
             })
             ->when($minStock, function ($query, $minStock) {
                 return $query->where('balance', '>=', $minStock);
-            })
-            ->when($unit, function ($query, $unit) {
-                return $query->where('unit_id', $unit);
             })
             ->when($category, function ($query, $category) {
                 return $query->where('category_id', $category);
@@ -90,7 +84,7 @@ class ItemController extends BaseController
                 'unit_id' => $data->unit_id,
                 'category_id' => $data->category_id,
                 'brand' => $data->brand,
-                'balance' => $data->beginningStock->stock,
+                'balance' => 0,
                 'qty_minimum' => $data->qty_minimum,
                 'iSell' => $data->iSell,
                 'iBuy' => $data->iBuy,
@@ -100,15 +94,24 @@ class ItemController extends BaseController
                 'buying_tax_id' => $data->buying_tax_id,
                 'description' => $data->description,
                 'warehouse_id' => $data->warehouse_id,
-                'created_by' => $data->created_by,
-                'branch_id' => $data->branch_id,
+                'created_by' => Auth::user()->id,
+                'branch_id' => Auth::user()->branch_id,
             ]);
 
             if ($data->beginningStock->value == true) {
-                $notes = "Persediaan awal Product" . $item->name;
+                $notes = "Persediaan awal Product " . $item->name;
                 $item->stock = $data->beginningStock->stock;
                 $item->price = $data->beginningStock->price;
-                ItemBeginningStockController::create($data = $item, $notes = $notes);
+                // ItemBeginningStockController::create($data = $item, $notes = $notes);
+
+                $item->penjualan = false;
+                $item->qty = $item->stock;
+                $item->debit_price = $item->price;
+
+                MutationController::create($item, $notes, '-');
+            }else{
+                $item->balance = $data->beginningStock->stock;
+                $item->save();
             }
             DB::commit();
             return $this->sendResponse($item, 'Product successfully created');

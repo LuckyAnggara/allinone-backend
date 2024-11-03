@@ -8,6 +8,7 @@ use App\Enums\NotificationTypeEnum;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
@@ -86,37 +87,42 @@ class CustomerController extends BaseController
         }
     }
 
-    static function create($data, $user)
+    static function create($data)
     {
-        $member = false;
-        $customer = Customer::create([
-            'name' => $data->name,
-            'type' => $data->type,
-            'address' => $data->address,
-            'phone_number' => $data->phone_number,
-            'member' => $member,
-            'company' => $data->company ?? 0,
-            'pic' => $data->pic ?? '',
-            'created_by' => $user->id,
-            'branch_id' => $user->branch->id,
-        ]);
+        try {
+            DB::beginTransaction();
+            $member = false;
+            $customer = Customer::create([
+                'name' => $data->name,
+                'type' => $data->type,
+                'address' => $data->address,
+                'phone_number' => $data->phone_number,
+                'member' => $member,
+                'company' => $data->company ?? 0,
+                'pic' => $data->pic ?? '',
+                'created_by' =>  Auth::user()->id,
+                'branch_id' =>  Auth::user()->branch_id,
+            ]);
 
-        if ($customer) {
-            if($data->saveCustomer){
-                $customer->member = true;
-                $customer->save();
-                $notifData =  [
-                    'type' => NotificationTypeEnum::Customer,
-                    'message' =>  'Data customer baru a/n ' . $customer->name . ' belum lengkap',
-                    'link' =>  '/customer/detail/'.$customer->uuid,
-                    'user' =>  $user,
-                    'status' =>  NotificationStatusEnum::Unread
-                ];
-                NotificationController::create(json_encode($notifData));
+            if ($customer) {
+                if ($data->saveCustomer) {
+                    $customer->member = true;
+                    $customer->save();
+                    $notifData =  [
+                        'type' => NotificationTypeEnum::Customer,
+                        'message' =>  'Data customer baru a/n ' . $customer->name . ' belum lengkap',
+                        'link' =>  '/customer/detail/' . $customer->uuid,
+                        'user' =>  Auth::user(),
+                        'status' =>  NotificationStatusEnum::Unread
+                    ];
+                    NotificationController::create(json_encode($notifData));
+                }
             }
-           
+            return $customer;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return $e->getMessage();
         }
-        return $customer;
     }
 
     public function show($uuid)
@@ -142,7 +148,6 @@ class CustomerController extends BaseController
             DB::beginTransaction();
             $customer = Customer::findOrFail($id);
             $customer->update($input);
-
             DB::commit();
             return $this->sendResponse($customer, 'Customer updated berhasil', 201);
         } catch (\Exception $e) {
