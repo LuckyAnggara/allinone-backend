@@ -58,6 +58,50 @@ class ItemController extends BaseController
         return $this->sendResponse($items, 'Data fetched');
     }
 
+    public function itemWithStock(Request $request)
+    {
+        $perPage = $request->input('limit', 5);
+        $name = $request->input('name');
+        $type = $request->input('type');
+        $minSellingPrice = $request->input('min-selling-price');
+        $minBuyingPrice = $request->input('min-buying-price');
+        $minStock = $request->input('min-stock');
+        $category = $request->input('category');
+
+        $user = Auth::user();
+        $items = Item::where('branch_id', $user->branch_id)->with('unit')
+            ->when($name, function ($query, $name) {
+                return $query->where('name', 'like', '%' . $name . '%')->orWhere('sku', 'like', '%' . $name . '%');
+            })
+            ->when($type, function ($query, $type) {
+                if ($type == 'sell') {
+                    return $query->where('iSell', true);
+                } else if ($type == 'buy') {
+                    return $query->where('iBuy', true);
+                } else {
+                    return $query;
+                }
+            })
+            ->when($minSellingPrice, function ($query, $minSellingPrice) {
+                return $query->where('selling_price', '>=', $minSellingPrice);
+            })
+            ->when($minBuyingPrice, function ($query, $minBuyingPrice) {
+                return $query->where('buying_price', '>=', $minBuyingPrice);
+            })
+            ->when($minStock, function ($query, $minStock) {
+                return $query->where('balance', '>=', $minStock);
+            })
+            ->when($category, function ($query, $category) {
+                return $query->where('category_id', $category);
+            })
+
+
+            ->latest()
+            ->paginate($perPage);
+        return $this->sendResponse($items, 'Data fetched');
+    }
+
+
     public function show($sku)
     {
         $result = Item::where('sku', $sku)
@@ -109,7 +153,7 @@ class ItemController extends BaseController
                 $item->debit_price = $item->price;
 
                 MutationController::create($item, $notes, '-');
-            }else{
+            } else {
                 $item->balance = $data->beginningStock->stock;
                 $item->save();
             }

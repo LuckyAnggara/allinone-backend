@@ -33,7 +33,17 @@ class Item extends Model
         'branch_id',
     ];
 
-    protected $appends = ['ending_stock', 'in_stock', 'out_stock', 'beg_balance', 'tax_status', 'can_tax', 'tax_value', 'show_image'];
+    protected $appends = [
+        'tax_status',
+        'can_tax',
+        'tax_value',
+        'show_image',
+
+        'ending_stock',
+        'in_stock',
+        'out_stock',
+        'beg_balance',
+    ];
 
     protected $casts = [
         'iSell' => 'boolean',
@@ -84,7 +94,6 @@ class Item extends Model
     {
         return $this->hasOne(ItemBeginningStock::class, 'item_id', 'id')->latestOfMany();
     }
-
     public function getBegBalanceAttribute()
     {
         return [

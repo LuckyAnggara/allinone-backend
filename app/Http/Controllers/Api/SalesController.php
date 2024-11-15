@@ -152,7 +152,7 @@ class SalesController extends BaseController
                 ]);
 
                 $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
-                $link = "/sales/" . $sales->id . "/invoice/";
+                $link = "/sales/detail" . $sales->uuid . "/invoice/";
                 $itemMutations[] = MutationController::create($value, $notes, $link);
                 $itemPrice[] = ItemSellingPriceController::create($value);
             }
@@ -283,7 +283,7 @@ class SalesController extends BaseController
                     ]);
 
                     $notes = 'PENJUALAN INVOICE #' . $sales->invoice;
-                    $link = '/sales/invoice/' . $sales->id;
+                    $link = "/sales/detail" . $sales->uuid . "/invoice/";
                     $itemMutations[] = MutationController::create($value, $notes, $link, $sales->created_at);
                     // $itemPrice[] = ItemSellingPriceController::create($value, $sales->created_at);
                 }
@@ -312,7 +312,7 @@ class SalesController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $sales = Sales::find($id);
+            $sales = Sales::findOrFail($id);
             if ($sales) {
                 $saleDetails = SaleDetail::where('sale_id', $sales->id)->get();
                 foreach ($saleDetails as $key => $detail) {
@@ -320,7 +320,7 @@ class SalesController extends BaseController
                     $detail->penjualan = false;
                     $notes = 'Hapus Transaksi #' . $sales->invoice;
                     MutationController::create($detail, $notes, '');
-                    // $detail->delete();
+                    $detail->delete();
                 }
                 $sales->delete();
                 DB::commit();

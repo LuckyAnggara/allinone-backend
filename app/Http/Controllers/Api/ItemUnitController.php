@@ -15,8 +15,8 @@ class ItemUnitController extends BaseController
     {
         $name = $request->input('name');
         $items = ItemUnit::where('branch_id', Auth::user()->branch_id)->when($name, function ($query, $name) {
-                return $query->where('name', 'like', '%' . $name . '%');
-            })
+            return $query->where('name', 'like', '%' . $name . '%');
+        })
             ->latest()
             ->get();
 
@@ -46,6 +46,4 @@ class ItemUnitController extends BaseController
             return $this->sendError($e, 'Failed to saved data');
         }
     }
-
-  
 }

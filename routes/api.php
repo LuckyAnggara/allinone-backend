@@ -30,9 +30,10 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/register', [AuthController::class, 'register'])->name('register');
-    Route::resource('item-mutation', MutationController::class);
+Route::resource('item-mutation', MutationController::class);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -44,8 +45,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('item-units', ItemUnitController::class);
     Route::resource('item-selling-prices', ItemSellingPriceController::class);
     Route::resource('sales', SalesController::class);
-Route::resource('banks', BankController::class);
-
+    Route::get(
+        'item-stock',
+        [ItemController::class, 'itemWithStock']
+    );
+    Route::resource('banks', BankController::class);
 });
 
 Route::resource('version', VersionController::class);
@@ -82,4 +86,3 @@ Route::get(
     '/notification/get-unread/{id}',
     [NotificationController::class, 'getUnread']
 );
-
